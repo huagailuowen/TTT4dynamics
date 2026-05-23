@@ -22,7 +22,7 @@ TTT4dynamics therefore uses three core ideas:
 
 3. **TTT-QKV SHE Adapter as execution memory**
 
-   We add a small test-time-learnable memory component called the SHE Adapter, where `SHE` means `State / History / Execution`. This module tracks the current episode state, recent observation-action transitions, previous action chunks, executed prefixes, elapsed time, and local motion evidence. It directly conditions the next action chunk.
+   We add a small test-time-learnable memory component called the SHE Adapter, where `SHE` means `State / History / Execution`. In the first implementation this is not a new input interface. We keep Fast-WAM's original input `x` unchanged and insert a TTT layer inside the Transformer path as a gated residual module. The memory is updated through the TTT layer's fast weights, then read by the same hidden-state stream before the action head.
 
 The central hypothesis is:
 
@@ -43,42 +43,67 @@ The project is intentionally scoped. TTT4dynamics is not trying to solve full sy
 TTT4dynamics follows a lightweight training-centered architecture.
 
 ```text
-image / language / robot state / previous chunk / elapsed time
+Fast-WAM original inputs
         -> Fast-WAM backbone
-        -> video/future latents as world-prediction representation
-        -> Transformer-inserted TTT-QKV SHE Adapter
-        -> action head
+        -> video backbone hidden state x_video
+             -> gated TTT-QKV layer
+             -> video/future latents as world-prediction representation
+        -> action backbone hidden state x_action
+             -> gated TTT-QKV layer
+             -> action head
         -> next action chunk
 ```
 
 ### Backbone
 
-The base model is temporarily fixed to Fast-WAM. We use its video prediction / future-latent path as the current world-prediction representation. At inference time, the policy does not predict future video frames; it keeps the observation-side clean latent and uses the action pathway for low-latency control.
+The base model is temporarily fixed to Fast-WAM. We use its video prediction / future-latent path as the current world-prediction representation. The first TTT version inserts the layer into both sides of the model:
+
+- the video backbone, where the TTT layer operates on the existing video hidden state `x_video`;
+- the action backbone, where the TTT layer operates on the existing action hidden state `x_action`.
+
+At inference time, the policy does not predict future video frames for control. It keeps the observation-side clean latent and uses the action pathway for low-latency control, while both backbones can still carry their own TTT fast-weight state.
+
+### First Insertion Rule
+
+The first version should not redesign the Fast-WAM input features.
+
+`x_video` and `x_action` mean the existing hidden states produced by Fast-WAM at the insertion points. We do not initially concatenate hand-written fields such as previous chunks, elapsed time, executed prefixes, or object-motion summaries into either hidden state. Those signals can be introduced later only if ablations show the inserted TTT layers are insufficient.
+
+The immediate implementation target is:
+
+- keep Fast-WAM tokenizer, observation inputs, language inputs, robot-state inputs, and action-head interface unchanged;
+- insert a gated TTT layer into the video backbone;
+- insert a gated TTT layer into the action backbone;
+- initialize the residual gate close to zero so the starting model behaves like the original Fast-WAM;
+- update only the small TTT fast weights at test time;
+- train or finetune the TTT projections and gate conservatively while keeping the backbone frozen or mostly frozen.
 
 ### TTT-QKV Layer
 
 The memory mechanism follows the TTT Layers / One-Minute Video Generation style:
 
 ```text
-train_view = theta_K x
-label_view = theta_V x
+train_view = theta_K x_branch
+label_view = theta_V x_branch
 L_inner = || f(train_view; W) - label_view ||^2
-test_view = theta_Q x
+test_view = theta_Q x_branch
 output = f(test_view; W_updated)
 ```
 
-In TTT4dynamics, `W` is the fast memory learner inside the SHE Adapter. In the first version, the outer loop mainly learns the Q/K/V projections that define the internal self-supervised TTT task: `theta_K`, `theta_V`, and `theta_Q`. Residual gates and initialization can be trained conservatively if needed, but the Fast-WAM backbone remains frozen or mostly frozen. During inner-loop updates, only the small TTT learner / fast weights are updated.
+In TTT4dynamics, `x_branch` is not a newly engineered input vector. It is the existing Fast-WAM hidden state at the TTT insertion point, with one branch-specific instance for `x_video` and one for `x_action`. `W` is the fast memory learner inside that branch's SHE Adapter. In the first version, the outer loop mainly learns the branch-specific Q/K/V projections that define the internal self-supervised TTT task: `theta_K`, `theta_V`, and `theta_Q`. Residual gates and initialization can be trained conservatively if needed, but the Fast-WAM backbone remains frozen or mostly frozen. During inner-loop updates, only the small TTT learner / fast weights are updated.
 
 The TTT layer should not be treated as a normal external MLP attached after the action head. It is inserted into the Transformer backbone as a gated residual sub-layer, following the TTT Layers style.
 
 First implementation:
 
-- insert gated TTT-QKV branches into final fusion / action blocks;
+- insert one gated TTT-QKV branch into the video backbone;
+- insert one gated TTT-QKV branch into the action backbone;
+- keep video/action TTT fast weights separate at first, so each branch learns memory in its own representation space;
 - initialize residual gates close to zero;
 - train primarily the Q/K/V projections that define the inner self-supervised task; keep gates / initialization conservative if they are trained at all;
 - keep the backbone frozen or mostly frozen for stability.
 
-Later implementation:
+Cross-branch extension:
 
 - insert a `video expert` TTT branch to write observation-transition, video-latent, future-latent, and motion evidence;
 - insert an `action expert` TTT branch so action tokens and execution tokens read the updated SHE memory before generating the next action chunk.
@@ -89,7 +114,7 @@ The model should be trained in the same style in which it will be used: update w
 
 Stage 0: start from a Fast-WAM backbone trained with behavior cloning and Fast-WAM-style video prediction.
 
-Stage 1: insert the TTT-QKV SHE Adapter with conservative gated residual initialization.
+Stage 1: insert TTT-QKV SHE layers into both the video backbone and action backbone with conservative gated residual initialization.
 
 Stage 2: run simulated inner loops along dynamic trajectories. At each step, the model predicts an action chunk, observes the next real transition, updates the TTT learner with a self-supervised transition loss, and uses the updated memory for the next action. Because inference does not predict future video frames, the inner-loop self-supervised loss should not include video future-frame prediction. The inner loop should use real observations, robot state, executed actions, and the action-expert side of the model.
 
