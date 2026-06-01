@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ttt4dynamics"
+version = "0.1.0"
+description = "Dynamic manipulation task wrappers and dataset collection tools for TTT4dynamics."
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+]
+
+[project.optional-dependencies]
+hdf5 = [
+  "h5py",
+]
+
+[tool.setuptools.packages.find]
+include = ["ttt4dynamics*"]

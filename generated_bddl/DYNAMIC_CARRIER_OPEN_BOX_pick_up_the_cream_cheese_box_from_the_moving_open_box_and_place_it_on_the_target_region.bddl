@@ -1,0 +1,55 @@
+(define (problem LIBERO_Kitchen_Tabletop_Manipulation)
+  (:domain robosuite)
+  (:language pick up the cream cheese box from the moving open box and place it on the target region)
+    (:regions
+      (carrier_init_region
+          (:target kitchen_table)
+          (:ranges (
+              (-0.135 -0.015 -0.105 0.015)
+            )
+          )
+          (:yaw_rotation (
+              (0.0 0.0)
+            )
+          )
+      )
+      (target_region
+          (:target kitchen_table)
+          (:ranges (
+              (0.135 0.175 0.22499999999999998 0.265)
+            )
+          )
+          (:yaw_rotation (
+              (0.0 0.0)
+            )
+          )
+      )
+      (contain_region
+          (:target wooden_tray_1)
+      )
+    )
+
+  (:fixtures
+    kitchen_table - kitchen_table
+  )
+
+  (:objects
+    wooden_tray_1 - wooden_tray
+    cream_cheese_1 - cream_cheese
+  )
+
+  (:obj_of_interest
+    wooden_tray_1
+    cream_cheese_1
+  )
+
+  (:init
+    (On wooden_tray_1 kitchen_table_carrier_init_region)
+    (In cream_cheese_1 wooden_tray_1_contain_region)
+  )
+
+  (:goal
+    (And (On cream_cheese_1 kitchen_table_target_region))
+  )
+
+)

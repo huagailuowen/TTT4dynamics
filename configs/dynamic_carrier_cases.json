@@ -1,0 +1,102 @@
+{
+  "cases": [
+    {
+      "case_id": "flat_line_medium",
+      "access_mode": "flat_platform",
+      "bddl_file": "generated_bddl/DYNAMIC_CARRIER_FLAT_pick_up_the_cream_cheese_box_from_the_moving_flat_platform_and_place_it_on_the_target_region.bddl",
+      "carrier_name": "plate_1",
+      "payload_name": "cream_cheese_1",
+      "target_xy": [0.18, 0.22],
+      "target_radius": 0.055,
+      "platform_radius": 0.11,
+      "object_radius": 0.04,
+      "safety_margin": 0.05,
+      "payload_offset_xyz": [0.0, 0.0, 0.055],
+      "grasp_offset_xyz": [0.0, 0.0, 0.045],
+      "max_steps": 450,
+      "motion": {
+        "family": "line",
+        "center": [-0.12, 0.0],
+        "amplitude": [0.1, 0.0],
+        "period": 2.8,
+        "phase": 0.0,
+        "direction": 1
+      }
+    },
+    {
+      "case_id": "flat_irregular_loop_medium",
+      "access_mode": "flat_platform",
+      "bddl_file": "generated_bddl/DYNAMIC_CARRIER_FLAT_pick_up_the_cream_cheese_box_from_the_moving_flat_platform_and_place_it_on_the_target_region.bddl",
+      "carrier_name": "plate_1",
+      "payload_name": "cream_cheese_1",
+      "target_xy": [0.18, 0.22],
+      "target_radius": 0.055,
+      "platform_radius": 0.11,
+      "object_radius": 0.04,
+      "safety_margin": 0.05,
+      "payload_offset_xyz": [0.0, 0.0, 0.055],
+      "grasp_offset_xyz": [0.0, 0.0, 0.045],
+      "max_steps": 500,
+      "motion": {
+        "family": "irregular_loop",
+        "center": [-0.12, 0.0],
+        "amplitude": [0.105, 0.07],
+        "period": 3.4,
+        "phase": 0.4,
+        "direction": 1,
+        "harmonics": [
+          {"order": 2, "x": 0.12, "y": 0.08, "phase": 0.7}
+        ]
+      }
+    },
+    {
+      "case_id": "box_line_medium",
+      "access_mode": "open_box_low_rim",
+      "bddl_file": "generated_bddl/DYNAMIC_CARRIER_OPEN_BOX_pick_up_the_cream_cheese_box_from_the_moving_open_box_and_place_it_on_the_target_region.bddl",
+      "carrier_name": "wooden_tray_1",
+      "payload_name": "cream_cheese_1",
+      "target_xy": [0.18, 0.22],
+      "target_radius": 0.055,
+      "platform_radius": 0.14,
+      "object_radius": 0.04,
+      "safety_margin": 0.05,
+      "payload_offset_xyz": [0.0, 0.0, 0.075],
+      "grasp_offset_xyz": [0.0, 0.0, 0.045],
+      "max_steps": 550,
+      "motion": {
+        "family": "line",
+        "center": [-0.12, 0.0],
+        "amplitude": [0.09, 0.0],
+        "period": 3.0,
+        "phase": 0.2,
+        "direction": 1
+      }
+    },
+    {
+      "case_id": "box_irregular_loop_medium",
+      "access_mode": "open_box_low_rim",
+      "bddl_file": "generated_bddl/DYNAMIC_CARRIER_OPEN_BOX_pick_up_the_cream_cheese_box_from_the_moving_open_box_and_place_it_on_the_target_region.bddl",
+      "carrier_name": "wooden_tray_1",
+      "payload_name": "cream_cheese_1",
+      "target_xy": [0.18, 0.22],
+      "target_radius": 0.055,
+      "platform_radius": 0.14,
+      "object_radius": 0.04,
+      "safety_margin": 0.05,
+      "payload_offset_xyz": [0.0, 0.0, 0.075],
+      "grasp_offset_xyz": [0.0, 0.0, 0.045],
+      "max_steps": 600,
+      "motion": {
+        "family": "irregular_loop",
+        "center": [-0.12, 0.0],
+        "amplitude": [0.095, 0.065],
+        "period": 3.8,
+        "phase": 1.1,
+        "direction": -1,
+        "harmonics": [
+          {"order": 3, "x": 0.08, "y": 0.10, "phase": -0.5}
+        ]
+      }
+    }
+  ]
+}

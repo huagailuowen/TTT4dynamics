@@ -1,0 +1,68 @@
+# Python caches
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments and local config
+.env
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Build and packaging artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Test, lint, and type-check caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyre/
+.coverage
+coverage.xml
+htmlcov/
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Experiment outputs, datasets, and simulator artifacts
+data/
+datasets/
+outputs/
+runs/
+results/
+evaluate_results/
+logs/
+videos/
+rendered_videos/
+*.log
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.npz
+*.npy
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+
+# Checkpoints and model caches
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+.hf_cache/
+huggingface/
+wandb/
