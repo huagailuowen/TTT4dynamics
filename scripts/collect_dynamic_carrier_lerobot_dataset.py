@@ -55,7 +55,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--camera-resolution", type=int, default=224)
     parser.add_argument("--speed-multiplier", type=float, default=1.6)
     parser.add_argument("--max-attempts", type=int, default=500)
+    parser.add_argument(
+        "--ttt-mode",
+        choices=["standard", "repeat_attempt", "observe_then_act"],
+        default="standard",
+        help=(
+            "standard collects independent demos; repeat_attempt collects groups of repeated tries "
+            "with identical dynamics except start phase; observe_then_act records a passive observation "
+            "prefix before scripted execution."
+        ),
+    )
+    parser.add_argument("--tries-per-group", type=int, default=6)
+    parser.add_argument("--observe-chunks", type=int, default=20)
+    parser.add_argument("--chunk-interval", type=int, default=10)
     parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument("--append", action="store_true", help="Resume an existing output dataset and top it up.")
     parser.add_argument("--repo-id", default="ttt_dynamic_carrier_cream")
     parser.add_argument("--video-codec", default="h264", choices=["h264", "hevc", "libsvtav1", "h264_nvenc"])
     parser.add_argument("--intercept-lead-s", type=float, default=0.42)
@@ -261,6 +275,17 @@ def _sample_case_variant(
     raise RuntimeError(f"Could not sample a separated trajectory variant for base case {base.case_id}")
 
 
+def _phase_shift_case(case: DynamicCarrierCase, *, group_index: int, try_index: int, tries_per_group: int) -> DynamicCarrierCase:
+    # Same dynamics family/shape/speed, different trajectory phase at episode start.
+    offset = 2.0 * math.pi * float(try_index) / max(float(tries_per_group), 1.0)
+    motion = replace(case.motion, phase=float((case.motion.phase + offset) % (2.0 * math.pi)))
+    return replace(
+        case,
+        case_id=f"{case.case_id}_group{group_index:04d}_try{try_index:02d}",
+        motion=motion,
+    )
+
+
 def _write_image_for_last_frame(dataset: LeRobotDataset, key: str, frame_index: int, image: np.ndarray) -> None:
     path = dataset._get_image_file_path(
         episode_index=dataset.episode_buffer["episode_index"],
@@ -293,6 +318,9 @@ def _save_rollout_to_dataset(
     camera_resolution: int,
     seed: int,
     planner_config: PlannerConfig,
+    observe_frames: int = 0,
+    group_id: int | None = None,
+    try_index: int | None = None,
 ) -> dict[str, Any]:
     base_env, init_state, task_description = create_libero_env_for_case(
         case,
@@ -307,10 +335,30 @@ def _save_rollout_to_dataset(
     success = False
     done = False
     frame_count = 0
+    planner_frame_count = 0
 
     try:
         _remove_current_episode_images(dataset)
         obs = env.reset(init_state=init_state)
+        planner.reset()
+        no_op_action = np.asarray([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0], dtype=np.float64)
+        for _ in range(max(int(observe_frames), 0)):
+            phase_counts["observe"] = phase_counts.get("observe", 0) + 1
+            agent, wrist = _obs_to_images(obs)
+            frame = {
+                "observation.images.image": agent,
+                "observation.images.wrist_image": wrist,
+                "observation.state": _obs_to_state(obs),
+                "action": _env_action_to_fastwam_action(no_op_action),
+            }
+            dataset.add_frame(frame, task=task, timestamp=frame_count / float(case.control_freq))
+            _write_image_for_last_frame(dataset, "observation.images.image", frame_count, agent)
+            _write_image_for_last_frame(dataset, "observation.images.wrist_image", frame_count, wrist)
+            frame_count += 1
+            obs, _, done, _ = env.step(no_op_action)
+            if done:
+                break
+
         planner.reset()
         for _ in range(int(case.max_steps)):
             phase_counts[str(planner.phase.value)] = phase_counts.get(str(planner.phase.value), 0) + 1
@@ -328,12 +376,15 @@ def _save_rollout_to_dataset(
             frame_count += 1
 
             obs, _, done, _ = env.step(action)
+            planner_frame_count += 1
             success = bool(env.check_success())
             if success or planner.is_done():
                 success = bool(env.check_success())
                 break
 
+        saved_episode_index = None
         if success:
+            saved_episode_index = int(dataset.meta.total_episodes)
             dataset.save_episode()
         else:
             _remove_current_episode_images(dataset)
@@ -342,11 +393,16 @@ def _save_rollout_to_dataset(
         return {
             "success": bool(success),
             "steps": int(frame_count),
+            "planner_steps": int(planner_frame_count),
+            "observe_frames": int(observe_frames),
             "seed": int(seed),
             "case": case.as_dict(),
             "task_description": task_description,
             "phase_counts": phase_counts,
             "final_phase": str(planner.phase.value),
+            "episode_index": saved_episode_index,
+            "group_id": group_id,
+            "try_index": try_index,
         }
     finally:
         env.close()
@@ -355,21 +411,38 @@ def _save_rollout_to_dataset(
 def collect_lerobot_dataset(args: argparse.Namespace) -> None:
     base_cases = load_cases(args.cases)
     output = args.output.resolve()
+    metadata_path = output / "dynamic_carrier_generation_metadata.json"
+    append_existing = bool(args.append and output.exists())
     if output.exists():
-        if not args.overwrite:
+        if args.overwrite and args.append:
+            raise ValueError("Use either --overwrite or --append, not both.")
+        if args.append:
+            if not metadata_path.exists():
+                raise FileNotFoundError(f"Cannot append without metadata: {metadata_path}")
+        elif not args.overwrite:
             raise FileExistsError(f"Output already exists; pass --overwrite to replace it: {output}")
-        shutil.rmtree(output)
+        else:
+            shutil.rmtree(output)
 
     rng = np.random.default_rng(int(args.seed))
-    dataset = LeRobotDataset.create(
-        repo_id=args.repo_id,
-        root=output,
-        fps=20,
-        features=_build_features(args.camera_resolution),
-        use_videos=True,
-        video_codec=args.video_codec,
-        is_compute_episode_stats_image=False,
-    )
+    if append_existing:
+        dataset = LeRobotDataset(
+            repo_id=args.repo_id,
+            root=output,
+            video_codec=args.video_codec,
+            is_compute_episode_stats_image=False,
+        )
+        dataset.episode_buffer = dataset.create_episode_buffer()
+    else:
+        dataset = LeRobotDataset.create(
+            repo_id=args.repo_id,
+            root=output,
+            fps=20,
+            features=_build_features(args.camera_resolution),
+            use_videos=True,
+            video_codec=args.video_codec,
+            is_compute_episode_stats_image=False,
+        )
     planner_config = PlannerConfig(
         intercept_lead_s=float(args.intercept_lead_s),
         position_gain=float(args.position_gain),
@@ -379,24 +452,57 @@ def collect_lerobot_dataset(args: argparse.Namespace) -> None:
         z_tolerance=float(args.z_tolerance),
     )
 
-    metadata = {
-        "created_at": dt.datetime.now().isoformat(),
-        "dataset_type": "ttt_dynamic_carrier_lerobot",
-        "episodes_requested": int(args.episodes),
-        "speed_multiplier": float(args.speed_multiplier),
-        "camera_resolution": int(args.camera_resolution),
-        "seed": int(args.seed),
-        "base_cases": [case.as_dict() for case in base_cases],
-        "successes": [],
-        "failures": [],
-        "prompts": {
-            "flat": FLAT_PROMPT,
-            "open_box": BOX_PROMPT,
-        },
-    }
-
-    successes = 0
-    attempts = 0
+    if append_existing:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        if metadata.get("ttt_mode") != str(args.ttt_mode):
+            raise ValueError(f"Existing dataset mode {metadata.get('ttt_mode')} does not match {args.ttt_mode}")
+        if int(metadata.get("tries_per_group", args.tries_per_group)) != int(args.tries_per_group):
+            raise ValueError("Existing dataset tries_per_group does not match append arguments.")
+        metadata["episodes_requested"] = int(args.episodes)
+        metadata["groups_requested"] = int(args.episodes) if args.ttt_mode == "repeat_attempt" else None
+        successes = (
+            int(metadata.get("groups_collected") or len(metadata.get("groups", [])))
+            if args.ttt_mode == "repeat_attempt"
+            else len(metadata.get("successes", []))
+        )
+        attempts = int(metadata.get("attempts") or 0)
+        for skipped_attempt in range(attempts):
+            _sample_case_variant(
+                base_cases,
+                rng,
+                skipped_attempt,
+                speed_multiplier=float(args.speed_multiplier),
+                period_jitter=float(args.period_jitter),
+                amplitude_jitter=float(args.amplitude_jitter),
+                line_yaw_range=float(args.line_yaw_range),
+                loop_yaw_range=float(args.loop_yaw_range),
+            )
+        print(f"[append] resuming {output} from successes={successes} attempts={attempts}")
+    else:
+        metadata = {
+            "created_at": dt.datetime.now().isoformat(),
+            "dataset_type": "ttt_dynamic_carrier_lerobot",
+            "ttt_mode": str(args.ttt_mode),
+            "episodes_requested": int(args.episodes),
+            "groups_requested": int(args.episodes) if args.ttt_mode == "repeat_attempt" else None,
+            "tries_per_group": int(args.tries_per_group),
+            "observe_chunks": int(args.observe_chunks),
+            "chunk_interval": int(args.chunk_interval),
+            "observe_frames": int(args.observe_chunks) * int(args.chunk_interval),
+            "speed_multiplier": float(args.speed_multiplier),
+            "camera_resolution": int(args.camera_resolution),
+            "seed": int(args.seed),
+            "base_cases": [case.as_dict() for case in base_cases],
+            "successes": [],
+            "failures": [],
+            "groups": [],
+            "prompts": {
+                "flat": FLAT_PROMPT,
+                "open_box": BOX_PROMPT,
+            },
+        }
+        successes = 0
+        attempts = 0
     while successes < int(args.episodes) and attempts < int(args.max_attempts):
         case = _sample_case_variant(
             base_cases,
@@ -408,36 +514,113 @@ def collect_lerobot_dataset(args: argparse.Namespace) -> None:
             line_yaw_range=float(args.line_yaw_range),
             loop_yaw_range=float(args.loop_yaw_range),
         )
-        episode_seed = int(args.seed + attempts)
-        attempts += 1
-        result = _save_rollout_to_dataset(
-            dataset,
-            case=case,
-            repo_root=args.repo_root,
-            camera_resolution=int(args.camera_resolution),
-            seed=episode_seed,
-            planner_config=planner_config,
-        )
+        if args.ttt_mode == "repeat_attempt":
+            group_attempt = attempts
+            attempts += 1
+            group_results = []
+            group_episode_indices = []
+            group_success = True
+            for try_idx in range(int(args.tries_per_group)):
+                try_case = _phase_shift_case(
+                    case,
+                    group_index=successes,
+                    try_index=try_idx,
+                    tries_per_group=int(args.tries_per_group),
+                )
+                episode_seed = int(args.seed + group_attempt * int(args.tries_per_group) + try_idx)
+                result = _save_rollout_to_dataset(
+                    dataset,
+                    case=try_case,
+                    repo_root=args.repo_root,
+                    camera_resolution=int(args.camera_resolution),
+                    seed=episode_seed,
+                    planner_config=planner_config,
+                    observe_frames=0,
+                    group_id=successes,
+                    try_index=try_idx,
+                )
+                group_results.append(result)
+                if result["success"]:
+                    group_episode_indices.append(int(result["episode_index"]))
+                else:
+                    group_success = False
+                    if args.save_failed_metadata:
+                        metadata["failures"].append(result)
+                    print(
+                        f"[failed group] attempt={attempts:04d} group={successes:04d} "
+                        f"try={try_idx:02d} case={try_case.case_id} steps={result['steps']} "
+                        f"final_phase={result['final_phase']}"
+                    )
+                    break
 
-        if result["success"]:
-            result["episode_index"] = int(successes)
-            metadata["successes"].append(result)
-            successes += 1
-            print(
-                f"[success {successes:04d}/{args.episodes}] "
-                f"attempt={attempts:04d} case={case.case_id} steps={result['steps']}"
-            )
+            if group_success and len(group_episode_indices) == int(args.tries_per_group):
+                group_record = {
+                    "group_id": int(successes),
+                    "case_id": case.case_id,
+                    "case": case.as_dict(),
+                    "episode_indices": group_episode_indices,
+                    "tries": group_results,
+                    "mode": "repeat_attempt",
+                    "chunk_interval": int(args.chunk_interval),
+                    "restart_between_tries": True,
+                }
+                metadata["groups"].append(group_record)
+                metadata["successes"].extend(group_results)
+                successes += 1
+                print(
+                    f"[success group {successes:04d}/{args.episodes}] "
+                    f"attempt={attempts:04d} case={case.case_id} episodes={group_episode_indices}"
+                )
         else:
-            if args.save_failed_metadata:
-                metadata["failures"].append(result)
-            print(
-                f"[failed] attempt={attempts:04d} case={case.case_id} "
-                f"steps={result['steps']} final_phase={result['final_phase']}"
+            observe_frames = (
+                int(args.observe_chunks) * int(args.chunk_interval)
+                if args.ttt_mode == "observe_then_act"
+                else 0
             )
+            episode_seed = int(args.seed + attempts)
+            attempts += 1
+            result = _save_rollout_to_dataset(
+                dataset,
+                case=case,
+                repo_root=args.repo_root,
+                camera_resolution=int(args.camera_resolution),
+                seed=episode_seed,
+                planner_config=planner_config,
+                observe_frames=observe_frames,
+            )
+
+            if result["success"]:
+                metadata["successes"].append(result)
+                if args.ttt_mode == "observe_then_act":
+                    metadata["groups"].append(
+                        {
+                            "group_id": int(successes),
+                            "case_id": case.case_id,
+                            "case": case.as_dict(),
+                            "episode_indices": [int(result["episode_index"])],
+                            "mode": "observe_then_act",
+                            "observe_frames": int(observe_frames),
+                            "observe_chunks": int(args.observe_chunks),
+                            "chunk_interval": int(args.chunk_interval),
+                        }
+                    )
+                successes += 1
+                print(
+                    f"[success {successes:04d}/{args.episodes}] "
+                    f"attempt={attempts:04d} case={case.case_id} steps={result['steps']}"
+                )
+            else:
+                if args.save_failed_metadata:
+                    metadata["failures"].append(result)
+                print(
+                    f"[failed] attempt={attempts:04d} case={case.case_id} "
+                    f"steps={result['steps']} final_phase={result['final_phase']}"
+                )
 
         metadata["attempts"] = int(attempts)
-        metadata["episodes_collected"] = int(successes)
-        (output / "dynamic_carrier_generation_metadata.json").write_text(
+        metadata["groups_collected"] = int(successes) if args.ttt_mode == "repeat_attempt" else None
+        metadata["episodes_collected"] = int(dataset.meta.total_episodes)
+        metadata_path.write_text(
             json.dumps(metadata, indent=2),
             encoding="utf-8",
         )
@@ -447,7 +630,8 @@ def collect_lerobot_dataset(args: argparse.Namespace) -> None:
             f"Only collected {successes}/{args.episodes} successful demos after {attempts} attempts."
         )
 
-    print(f"Wrote LeRobot dataset with {successes} successful episodes: {output}")
+    unit = "groups" if args.ttt_mode == "repeat_attempt" else "episodes"
+    print(f"Wrote LeRobot dataset with {successes} successful {unit}: {output}")
 
 
 def main() -> None:
