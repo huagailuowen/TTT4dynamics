@@ -351,6 +351,193 @@ Full task success is still 0/50 for both methods on OOD. That means the current
 OOD setting is useful for testing interception and pickup, but remains too hard
 for full pick-and-place success under the current policy and simulation metric.
 
+## Reproduction And Test Procedure
+
+All evaluations in this note use the same dynamic-carrier evaluation entrypoint:
+
+```text
+FastWAM/experiments/dynamic_carrier/eval_dynamic_carrier_single.py
+```
+
+Shared runtime settings:
+
+- `EVALUATION.num_trials=50`
+- `EVALUATION.case_start=0`
+- `EVALUATION.num_steps_wait=0`
+- `EVALUATION.replan_steps=10`
+- `EVALUATION.warmup_passes=0`
+- `+EVALUATION.repeat_eval_from_groups=false`
+- `+EVALUATION.xy_tolerance=0.035`
+- `+EVALUATION.z_tolerance=0.05`
+- `gpu_id=1`
+- `CUDA_VISIBLE_DEVICES=1`
+
+The policy predicts an action chunk, but evaluation only executes 10 environment
+steps before replanning. With the 20 Hz simulator control frequency, 10 executed
+steps correspond to 0.5 seconds of simulated time.
+
+### Raw Observe-20 Baseline
+
+Purpose: control for the delayed-action protocol used by Type2 TTT. Raw uses the
+plain FastWAM checkpoint but still waits through the 20 observe chunks before
+acting.
+
+Key settings:
+
+```text
+task=ttt_dynamic_carrier_cream_2cam224_ft
+ckpt=FastWAM/runs/ttt_dynamic_carrier_cream_2cam224_ft/20260531_0527_plain_gpu/checkpoints/weights/step_010000.pt
+EVALUATION.dataset_stats_path=FastWAM/runs/ttt_dynamic_carrier_cream_2cam224_ft/20260531_0527_plain_gpu/dataset_stats.json
++EVALUATION.dynamic_metadata_path=FastWAM/data/ttt_dynamic_carrier_observe20_200_lerobot/dynamic_carrier_generation_metadata.json
++EVALUATION.observe_then_act_chunks=20
++EVALUATION.observe_then_act_interval=10
+```
+
+Important behavior:
+
+- Uses the raw FastWAM policy weights.
+- Uses dummy/no-op actions during the observe phase.
+- Does not persist video-TTT adaptation state.
+- Starts action inference after 200 observe frames.
+
+### Type2 Observe-20 TTT
+
+Purpose: test online adaptation from the same 20 observed chunks.
+
+Key settings:
+
+```text
+task=ttt_dynamic_carrier_observe20_2cam224_video_ttt
+ckpt=FastWAM/runs/ttt_dynamic_carrier_observe20_2cam224_video_ttt/20260604_0127_gpu1_b16_restart/checkpoints/weights/step_017250.pt
+EVALUATION.dataset_stats_path=FastWAM/runs/ttt_dynamic_carrier_observe20_2cam224_video_ttt/20260604_0127_gpu1_b16_restart/dataset_stats.json
++EVALUATION.dynamic_metadata_path=FastWAM/data/ttt_dynamic_carrier_observe20_200_lerobot/dynamic_carrier_generation_metadata.json
++EVALUATION.observe_then_act_chunks=20
++EVALUATION.observe_then_act_interval=10
+```
+
+Important behavior:
+
+- Uses the observe-20 video-TTT checkpoint at `step_017250`.
+- Uses dummy/no-op actions during the observe phase.
+- Applies one video-TTT observation update per observe chunk.
+- Total adaptation updates per episode: 20.
+- Starts action inference after 200 observe frames.
+
+### Raw Direct Timing Control
+
+Purpose: isolate whether Raw's low observe-20 pickup rate is caused by the raw
+checkpoint itself or by the 200-frame action delay.
+
+Command shape:
+
+```bash
+cd FastWAM
+CUDA_VISIBLE_DEVICES=1 .venv/bin/python experiments/dynamic_carrier/eval_dynamic_carrier_single.py \
+  task=ttt_dynamic_carrier_cream_2cam224_ft \
+  ckpt=./runs/ttt_dynamic_carrier_cream_2cam224_ft/20260531_0527_plain_gpu/checkpoints/weights/step_010000.pt \
+  gpu_id=1 \
+  EVALUATION.dataset_stats_path=./runs/ttt_dynamic_carrier_cream_2cam224_ft/20260531_0527_plain_gpu/dataset_stats.json \
+  EVALUATION.num_trials=50 \
+  EVALUATION.output_dir=./evaluate_results/dynamic_carrier/20260606_raw_direct_same_prev_env_attach035_z050_n50_cases000_049 \
+  EVALUATION.warmup_passes=0 \
+  EVALUATION.num_steps_wait=0 \
+  EVALUATION.replan_steps=10 \
+  +EVALUATION.run_name=raw_plain_direct_same_prev_env_attach035_z050_n50_cases000_049 \
+  +EVALUATION.dynamic_metadata_path=./data/ttt_dynamic_carrier_cream_200_lerobot/dynamic_carrier_generation_metadata.json \
+  +EVALUATION.repeat_eval_from_groups=false \
+  +EVALUATION.case_start=0 \
+  +EVALUATION.xy_tolerance=0.035 \
+  +EVALUATION.z_tolerance=0.05
+```
+
+Important behavior:
+
+- Uses the same raw checkpoint and metric thresholds.
+- Uses the first 50 cream metadata cases.
+- Does not run the observe-then-act wrapper.
+- Starts policy inference immediately at episode start.
+
+### OOD50 Metadata Generation
+
+The OOD evaluation uses an eval-only metadata file:
+
+```text
+FastWAM/data/ttt_dynamic_carrier_ood_eval_50/dynamic_carrier_generation_metadata.json
+```
+
+It was generated from `TTT4dynamics/configs/dynamic_carrier_cases.json` with
+seed `20260606`. The generator preserved the same object, target, BDDL scene,
+prompt family, and metric code, then changed only dynamic motion parameters.
+
+OOD families:
+
+| Family | Cases | Parameter shift |
+|---|---:|---|
+| `fast_period` | 10 | shorter periods than training, approximately speed-multiplier 2.3 |
+| `slow_period` | 10 | longer periods than training, approximately speed-multiplier 1.05 |
+| `large_amplitude` | 10 | larger trajectory envelope with small carrier-center safety shift if needed |
+| `high_yaw` | 10 | line/loop yaw up to about +/-0.62 rad |
+| `novel_shape` | 10 | trajectory family changed to `ellipse`, `figure8`, or `lissajous` |
+
+The metadata records `ood_family`, `target_path_separation`, and
+`safety_center_shifts` for each case. When target-path separation was too small,
+the carrier path center was shifted slightly away from the target region. This
+keeps the task physically valid without changing the target or object semantics.
+
+### OOD Raw Direct
+
+Command shape:
+
+```bash
+cd FastWAM
+CUDA_VISIBLE_DEVICES=1 .venv/bin/python experiments/dynamic_carrier/eval_dynamic_carrier_single.py \
+  task=ttt_dynamic_carrier_cream_2cam224_ft \
+  ckpt=./runs/ttt_dynamic_carrier_cream_2cam224_ft/20260531_0527_plain_gpu/checkpoints/weights/step_010000.pt \
+  gpu_id=1 \
+  EVALUATION.dataset_stats_path=./runs/ttt_dynamic_carrier_cream_2cam224_ft/20260531_0527_plain_gpu/dataset_stats.json \
+  EVALUATION.num_trials=50 \
+  EVALUATION.output_dir=./evaluate_results/dynamic_carrier/20260606_ood50_raw_direct_vs_type2_observe20 \
+  EVALUATION.warmup_passes=0 \
+  EVALUATION.num_steps_wait=0 \
+  EVALUATION.replan_steps=10 \
+  +EVALUATION.run_name=raw_direct_ood50_cases000_049 \
+  +EVALUATION.dynamic_metadata_path=./data/ttt_dynamic_carrier_ood_eval_50/dynamic_carrier_generation_metadata.json \
+  +EVALUATION.repeat_eval_from_groups=false \
+  +EVALUATION.case_start=0 \
+  +EVALUATION.xy_tolerance=0.035 \
+  +EVALUATION.z_tolerance=0.05
+```
+
+### OOD Type2 Observe-20
+
+Command shape:
+
+```bash
+cd FastWAM
+CUDA_VISIBLE_DEVICES=1 .venv/bin/python experiments/dynamic_carrier/eval_dynamic_carrier_single.py \
+  task=ttt_dynamic_carrier_observe20_2cam224_video_ttt \
+  ckpt=./runs/ttt_dynamic_carrier_observe20_2cam224_video_ttt/20260604_0127_gpu1_b16_restart/checkpoints/weights/step_017250.pt \
+  gpu_id=1 \
+  EVALUATION.dataset_stats_path=./runs/ttt_dynamic_carrier_observe20_2cam224_video_ttt/20260604_0127_gpu1_b16_restart/dataset_stats.json \
+  EVALUATION.num_trials=50 \
+  EVALUATION.output_dir=./evaluate_results/dynamic_carrier/20260606_ood50_raw_direct_vs_type2_observe20 \
+  EVALUATION.warmup_passes=0 \
+  EVALUATION.num_steps_wait=0 \
+  EVALUATION.replan_steps=10 \
+  +EVALUATION.run_name=type2_step017250_observe20_ood50_cases000_049 \
+  +EVALUATION.dynamic_metadata_path=./data/ttt_dynamic_carrier_ood_eval_50/dynamic_carrier_generation_metadata.json \
+  +EVALUATION.repeat_eval_from_groups=false \
+  +EVALUATION.case_start=0 \
+  +EVALUATION.observe_then_act_chunks=20 \
+  +EVALUATION.observe_then_act_interval=10 \
+  +EVALUATION.xy_tolerance=0.035 \
+  +EVALUATION.z_tolerance=0.05
+```
+
+The OOD Raw and OOD Type2 runs were executed serially on GPU1 to avoid resource
+interference. Raw direct ran first, then Type2 observe-20 started after Raw
+exited successfully.
+
 ## Short Conclusion
 
 TTT is helping, especially on the intermediate skill of catching or grasping the moving object. The final placement success is still too low to make the full-task metric a sensitive comparison by itself. For clearer TTT-effect demonstrations, the next experiments should either reduce task difficulty or increase the amount/frequency of useful observation for adaptation.
