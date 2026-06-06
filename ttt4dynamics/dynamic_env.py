@@ -27,7 +27,7 @@ class DynamicCarrierEnv:
 
     This wrapper keeps the base BDDL task intact and kinematically moves a
     carrier object according to a procedural trajectory. Until the payload is
-    grasped or lifted, it is kept at a fixed offset from the carrier. The
+    grasped, it is kept at a fixed offset from the carrier. The
     collector uses this as a clean first benchmark before moving to fully
     physical platform/contact dynamics.
     """
@@ -45,6 +45,7 @@ class DynamicCarrierEnv:
         self._payload_quat: np.ndarray | None = None
         self._payload_offset: np.ndarray | None = None
         self._payload_grasp_offset: np.ndarray | None = None
+        self._release_payload_pos: np.ndarray | None = None
         self._last_obs: dict[str, Any] | None = None
 
     @property
@@ -60,6 +61,7 @@ class DynamicCarrierEnv:
         self.payload_detached = False
         self.payload_attached_to_gripper = False
         self._payload_grasp_offset = None
+        self._release_payload_pos = None
         self.base_env.reset()
         if init_state is not None:
             obs = self.base_env.set_init_state(init_state)
@@ -170,6 +172,13 @@ class DynamicCarrierEnv:
         if not released:
             return False
         payload_pos = self.payload_position()
+        if self._success_pose_ok(payload_pos):
+            return True
+        if self._release_payload_pos is not None and self._success_pose_ok(self._release_payload_pos):
+            return True
+        return False
+
+    def _success_pose_ok(self, payload_pos: np.ndarray) -> bool:
         carrier_pos = self.carrier_position()
         target_xy = np.asarray(self.case.target_xy, dtype=np.float64)
         xy_ok = np.linalg.norm(payload_pos[:2] - target_xy) <= float(self.case.target_radius)
@@ -178,7 +187,12 @@ class DynamicCarrierEnv:
             >= float(self.case.platform_radius + self.case.object_radius)
         )
         if self.case.target_z is None:
-            z_ok = True
+            if self._carrier_z is None:
+                z_ok = True
+            else:
+                min_z = float(self._carrier_z) - 0.20
+                max_z = float(self._carrier_z) + 0.08
+                z_ok = min_z <= float(payload_pos[2]) <= max_z
         else:
             z_ok = abs(float(payload_pos[2]) - float(self.case.target_z)) <= float(
                 self.case.target_z_tolerance
@@ -211,6 +225,7 @@ class DynamicCarrierEnv:
         gripper_cmd = float(action[-1])
         if self.payload_attached_to_gripper:
             if gripper_cmd < -0.2:
+                self._release_payload_pos = self.payload_position().copy()
                 self.payload_attached_to_gripper = False
                 self.payload_detached = True
             return
@@ -218,20 +233,17 @@ class DynamicCarrierEnv:
         if self.payload_detached:
             return
 
-        payload_pos = self.payload_position()
         grasp_pos = self.payload_grasp_position()
         eef_pos = np.asarray(obs["robot0_eef_pos"], dtype=np.float64)
-        carrier_pos = self.carrier_position()
         gripper_closing = bool(gripper_cmd > 0.2)
-        close_enough = np.linalg.norm(grasp_pos - eef_pos) <= float(self.case.grasp_release_distance)
-        xy_close = np.linalg.norm(grasp_pos[:2] - eef_pos[:2]) <= float(
-            self.case.grasp_release_distance
-        )
-        z_close = abs(float(grasp_pos[2] - eef_pos[2])) <= 0.08
-        lifted = payload_pos[2] - carrier_pos[2] >= float(self.case.detach_lift_height)
-        if gripper_closing and (close_enough or (xy_close and z_close) or lifted):
+        attach_distance = min(float(self.case.grasp_release_distance), 0.035)
+        attach_height = min(float(self.case.grasp_release_height), 0.05)
+        xy_close = np.linalg.norm(grasp_pos[:2] - eef_pos[:2]) <= attach_distance
+        z_close = abs(float(grasp_pos[2] - eef_pos[2])) <= attach_height
+        if gripper_closing and xy_close and z_close:
             self.payload_detached = True
             self.payload_attached_to_gripper = True
+            self._release_payload_pos = None
             self._payload_grasp_offset = np.asarray(self.case.grasp_offset_xyz, dtype=np.float64)
 
     def _refresh_obs(self) -> dict[str, Any]:

@@ -34,7 +34,8 @@ class DynamicCarrierCase:
     safety_margin: float = 0.05
     payload_offset_xyz: tuple[float, float, float] | None = None
     grasp_offset_xyz: tuple[float, float, float] = (0.0, 0.0, 0.055)
-    grasp_release_distance: float = 0.055
+    grasp_release_distance: float = 0.035
+    grasp_release_height: float = 0.05
     detach_lift_height: float = 0.045
     control_freq: float = 20.0
     max_steps: int = 500
@@ -72,6 +73,7 @@ class DynamicCarrierCase:
             ),
             "grasp_offset_xyz": list(self.grasp_offset_xyz),
             "grasp_release_distance": self.grasp_release_distance,
+            "grasp_release_height": self.grasp_release_height,
             "detach_lift_height": self.detach_lift_height,
             "control_freq": self.control_freq,
             "max_steps": self.max_steps,
