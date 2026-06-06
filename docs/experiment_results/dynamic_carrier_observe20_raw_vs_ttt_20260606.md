@@ -232,6 +232,125 @@ However, the full task is still very hard for both methods. Most episodes fail b
 - placing onto a static target after a dynamic pickup,
 - table/contact stability and object penetration issues.
 
+## Raw Direct Timing Control
+
+After the first 50-case result, we also reran Raw FastWAM on the same first-50
+cream metadata cases, but without the observe-then-act wrapper. This controls for
+the question of whether the raw model's low pickup rate came from the model
+itself or from delaying action by 20 observe chunks.
+
+Output directory:
+
+```text
+FastWAM/evaluate_results/dynamic_carrier/20260606_raw_direct_same_prev_env_attach035_z050_n50_cases000_049
+```
+
+Run:
+
+```text
+raw_plain_direct_same_prev_env_attach035_z050_n50_cases000_049
+```
+
+Configuration:
+
+- Same base checkpoint as Raw FastWAM.
+- Same first 50 cream metadata cases as the Raw observe-20 run.
+- `repeat_eval_from_groups=false`
+- `observe_then_act_chunks=0`
+- `warmup_passes=0`
+- `replan_steps=10`
+- grasp XY threshold 3.5 cm and Z threshold 5.0 cm
+
+Result:
+
+| Method | Task Success | Pickup Success | Observe Chunks |
+|---|---:|---:|---:|
+| Raw FastWAM, observe-20 wrapper | 0/50 = 0.0% | 5/50 = 10.0% | 20 |
+| Raw FastWAM, direct execution | 0/50 = 0.0% | 13/50 = 26.0% | 0 |
+
+This confirms that the raw 10.0% pickup number is not purely a property of the
+raw checkpoint. On this task, the 200-frame observe delay strongly changes the
+execution timing and the carrier phase before policy actions begin. The full
+task success remains 0/50 in both raw settings, but the pickup metric is
+sensitive to this timing change.
+
+For strict comparisons, Raw direct and observe-then-act TTT should be reported
+as different protocols:
+
+- Raw direct measures the original policy's immediate reaction to the dynamic
+  scene.
+- Raw observe-20 controls for the same delayed action budget used by Type2 TTT.
+- Type2 observe-20 tests whether online video-TTT updates during those observed
+  chunks help after the same delay.
+
+## OOD Dynamic-Parameter Evaluation
+
+We also created a 50-case eval-only OOD metadata set to compare Raw direct
+against Observe-20 Type2 TTT on dynamic parameters outside the original training
+range.
+
+Metadata:
+
+```text
+FastWAM/data/ttt_dynamic_carrier_ood_eval_50/dynamic_carrier_generation_metadata.json
+```
+
+Output directory:
+
+```text
+FastWAM/evaluate_results/dynamic_carrier/20260606_ood50_raw_direct_vs_type2_observe20
+```
+
+OOD design:
+
+- Same object, same task language, same flat-platform/open-box BDDL scenes.
+- Same target region and metric code.
+- 50 eval cases, grouped into 5 OOD families with 10 cases each:
+  - `fast_period`
+  - `slow_period`
+  - `large_amplitude`
+  - `high_yaw`
+  - `novel_shape`
+- The OOD parameters move outside the training metadata range:
+  - training period range was about 1.55 to 2.66 seconds
+  - training X amplitude range was about 0.078 to 0.119 m
+  - training Y amplitude range was about 0.0 to 0.080 m
+  - training yaw range was about -0.34 to 0.35 radians
+
+Compared methods:
+
+| Method | Checkpoint | Protocol |
+|---|---|---|
+| Raw FastWAM direct | `ttt_dynamic_carrier_cream_2cam224_ft/.../step_010000.pt` | no observe phase, direct policy execution |
+| Type2 Observe-20 TTT | `ttt_dynamic_carrier_observe20_2cam224_video_ttt/.../step_017250.pt` | 20 observe chunks, interval 10, then policy execution |
+
+Overall OOD result:
+
+| Method | Task Success | Pickup Success | Observe Chunks |
+|---|---:|---:|---:|
+| Raw FastWAM direct | 0/50 = 0.0% | 10/50 = 20.0% | 0 |
+| Type2 Observe-20 TTT | 0/50 = 0.0% | 11/50 = 22.0% | 20 |
+
+OOD pickup by family:
+
+| OOD Family | Raw FastWAM Direct | Type2 Observe-20 TTT |
+|---|---:|---:|
+| fast_period | 3/10 | 2/10 |
+| slow_period | 2/10 | 2/10 |
+| large_amplitude | 2/10 | 1/10 |
+| high_yaw | 2/10 | 2/10 |
+| novel_shape | 1/10 | 4/10 |
+
+The OOD result is mixed. Overall pickup is nearly tied, with Type2 only one case
+ahead: 22.0% vs 20.0%. The clearest local gain is on `novel_shape`, where Type2
+gets 4/10 pickups and Raw direct gets 1/10. This suggests observe-20 adaptation
+may be more useful when the trajectory family changes, but this result is still
+small and should be treated as an early signal rather than a strong conclusion.
+
+Full task success is still 0/50 for both methods on OOD. That means the current
+OOD setting is useful for testing interception and pickup, but remains too hard
+for full pick-and-place success under the current policy and simulation metric.
+
 ## Short Conclusion
 
 TTT is helping, especially on the intermediate skill of catching or grasping the moving object. The final placement success is still too low to make the full-task metric a sensitive comparison by itself. For clearer TTT-effect demonstrations, the next experiments should either reduce task difficulty or increase the amount/frequency of useful observation for adaptation.
@@ -242,4 +361,5 @@ Practical next directions:
 - Increase observation frequency or TTT update frequency, for example shorter observe interval than 10 or more observe chunks.
 - Try a slower carrier speed or larger target radius as a controlled difficulty sweep.
 - Keep reporting both pickup success and full placement success, because pickup success is currently the more informative early signal.
-
+- For OOD analysis, focus on trajectory-family shifts like `novel_shape`, where
+  the first OOD sweep showed the clearest Type2 pickup advantage.
