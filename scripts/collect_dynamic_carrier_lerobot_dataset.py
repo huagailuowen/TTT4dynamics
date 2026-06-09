@@ -53,7 +53,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--seed", type=int, default=20260530)
     parser.add_argument("--camera-resolution", type=int, default=224)
-    parser.add_argument("--speed-multiplier", type=float, default=1.6)
+    parser.add_argument("--speed-multiplier", type=float, default=0.8)
     parser.add_argument("--max-attempts", type=int, default=500)
     parser.add_argument(
         "--ttt-mode",
@@ -359,6 +359,7 @@ def _save_rollout_to_dataset(
             if done:
                 break
 
+        action_start_frame = int(frame_count)
         planner.reset()
         for _ in range(int(case.max_steps)):
             phase_counts[str(planner.phase.value)] = phase_counts.get(str(planner.phase.value), 0) + 1
@@ -395,6 +396,9 @@ def _save_rollout_to_dataset(
             "steps": int(frame_count),
             "planner_steps": int(planner_frame_count),
             "observe_frames": int(observe_frames),
+            "action_start_frame": int(action_start_frame),
+            "execution_start_frame": int(action_start_frame),
+            "action_start_timestamp": float(action_start_frame / float(case.control_freq)),
             "seed": int(seed),
             "case": case.as_dict(),
             "task_description": task_description,
@@ -489,6 +493,8 @@ def collect_lerobot_dataset(args: argparse.Namespace) -> None:
             "observe_chunks": int(args.observe_chunks),
             "chunk_interval": int(args.chunk_interval),
             "observe_frames": int(args.observe_chunks) * int(args.chunk_interval),
+            "action_start_frame": int(args.observe_chunks) * int(args.chunk_interval),
+            "execution_start_frame": int(args.observe_chunks) * int(args.chunk_interval),
             "speed_multiplier": float(args.speed_multiplier),
             "camera_resolution": int(args.camera_resolution),
             "seed": int(args.seed),
@@ -600,6 +606,8 @@ def collect_lerobot_dataset(args: argparse.Namespace) -> None:
                             "episode_indices": [int(result["episode_index"])],
                             "mode": "observe_then_act",
                             "observe_frames": int(observe_frames),
+                            "action_start_frame": int(result["action_start_frame"]),
+                            "execution_start_frame": int(result["execution_start_frame"]),
                             "observe_chunks": int(args.observe_chunks),
                             "chunk_interval": int(args.chunk_interval),
                         }
