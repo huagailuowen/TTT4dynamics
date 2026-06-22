@@ -147,4 +147,64 @@ This reset/carry rule is part of the training design. It should not be hard-code
 
 ## Experiments
 
-TODO.
+### LIBERO Push-Box Friction Adaptation
+
+The push-box friction environment is the first test case for physical-property adaptation. It uses a real LIBERO / MuJoCo simulation instead of applying a synthetic force to the object. The robot closes the gripper, moves the end effector to the side of a box, performs a short forward push, then retreats while the box slides freely on the table.
+
+The implementation lives in:
+
+- `ttt4dynamics/push_box_libero.py`: LIBERO environment wrapper and scripted pusher controller.
+- `scripts/generate_libero_push_box_adaptation_dataset.py`: generates BDDL files, builds source/adaptation friction groups, calibrates push settings, and writes a case config.
+- `scripts/render_libero_push_box_friction_cases.py`: renders configured cases into per-case videos plus a comparison video and `metadata.json`.
+
+The physical friction is set through MuJoCo geom friction on the box and table collision geoms. The generated task varies `friction_mu`, object start position, and target position while keeping the push stroke fixed and short. This makes the task depend on physical properties rather than on a long deterministic robot sweep.
+
+Important control rule: do not use a large global controller output scale as the main adaptation variable. Large controller scaling can make the OSC / IK solver unstable and produce joint-angle jumps, especially after the push when the arm retreats or settles. The fixed-control version keeps global controller output scaling disabled by default and uses a short one-shot impulse push:
+
+- fixed short push stroke;
+- positive x-only impulse during the push phase, with no x-axis feedback chase;
+- weak y/z hold to maintain contact alignment;
+- bounded action caps and bounded per-step action deltas;
+- calibration over `pusher_push_steps`, `pusher_push_controller_scale`, and `pusher_push_action_end`;
+- `controller_output_scale = 1.0` and `enable_controller_output_scaling = false` by default.
+
+The detailed generation recipe and currently selected high-friction cases are documented in `dataset.md`.
+
+Example generation command:
+
+```bash
+MUJOCO_GL=egl \
+PYTHONPATH=/path/to/LIBERO:/path/to/TTT4dynamics \
+/path/to/FastWAM/.venv/bin/python \
+  scripts/generate_libero_push_box_adaptation_dataset.py \
+  --output configs/libero_push_box_adaptation_dataset_fixed_control.json \
+  --bddl-dir generated_bddl/push_box_adaptation_dataset_fixed_control \
+  --source-friction 0.006 \
+  --source-count 4 \
+  --adapt-count-per-group 4 \
+  --adapt-frictions 0.005 0.0075 0.01 \
+  --push-distance-x 0.10 \
+  --target-radius 0.025 \
+  --max-steps 260 \
+  --camera-resolution 256 \
+  --calibration-resolution 32 \
+  --successes-before-stop 2 \
+  --max-calibration-trials 80 \
+  --allow-unsolved
+```
+
+Example rendering command:
+
+```bash
+MUJOCO_GL=egl \
+PYTHONPATH=/path/to/LIBERO:/path/to/TTT4dynamics \
+/path/to/FastWAM/.venv/bin/python \
+  scripts/render_libero_push_box_friction_cases.py \
+  --cases configs/libero_push_box_adaptation_dataset_fixed_control.json \
+  --output-dir outputs/libero_push_box_fixed_control_adaptation_compare \
+  --camera both \
+  --comparison-cols 4 \
+  --fps 20
+```
+
+When a friction / geometry pair cannot be solved with the short-stroke stable controller, keep it as a near miss or narrow the friction range. Do not recover success by increasing global controller scale to a large value, because that produces demonstrations that are physically misleading and hard for the policy to learn.

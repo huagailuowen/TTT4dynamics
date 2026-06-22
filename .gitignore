@@ -6,6 +6,7 @@ __pycache__/
 
 # Virtual environments and local config
 .env
+.libero_config/
 .venv/
 venv/
 env/
