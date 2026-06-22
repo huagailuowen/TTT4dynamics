@@ -1,0 +1,49 @@
+(define (problem LIBERO_Tabletop_Manipulation)
+  (:domain robosuite)
+  (:language push the cream cheese box across the smooth table into the green target region)
+    (:regions
+      (box_init_region
+          (:target main_table)
+          (:ranges (
+              (-0.2470 -0.0370 -0.2430 -0.0330)
+            )
+          )
+          (:yaw_rotation (
+              (0.0 0.0)
+            )
+          )
+      )
+      (target_region
+          (:target main_table)
+          (:ranges (
+              (-0.2018 -0.0542 -0.1518 -0.0042)
+            )
+          )
+          (:rgba
+              (0.000 0.800 0.200 0.450)
+          )
+      )
+    )
+
+  (:fixtures
+    main_table - table
+  )
+
+  (:objects
+    cream_cheese_1 - cream_cheese
+  )
+
+  (:obj_of_interest
+    cream_cheese_1
+    main_table_target_region
+  )
+
+  (:init
+    (On cream_cheese_1 main_table_box_init_region)
+  )
+
+  (:goal
+    (And (On cream_cheese_1 main_table_target_region))
+  )
+
+)

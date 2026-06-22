@@ -154,12 +154,16 @@ Force diversity is produced by varying:
 
 - `pusher_push_distance_x`;
 - `pusher_push_steps`;
+- `pusher_push_controller_scale`;
 - friction coefficient;
 - push angle.
 
 For position pushes, smaller `pusher_push_steps` means the target advances more
 per environment step, which makes the same path a stronger push. Larger
 `pusher_push_steps` makes the push gentler.
+`pusher_push_controller_scale` is kept as an explicit sweep dimension because
+high-friction cases need a stronger stable controller, while low-friction cases
+should use gentler pushes.
 
 Generate a rollout-target dataset:
 
@@ -171,7 +175,8 @@ $PY scripts/generate_libero_push_box_rollout_target_dataset.py \
   --straight-angles 0 \
   --angled-angles -30 -20 -10 10 20 30 \
   --push-steps 8 12 16 20 24 28 \
-  --push-distances 0.12 0.14 0.16 0.18
+  --push-distances 0.12 0.14 0.16 0.18 \
+  --push-scales 2 4 8 12
 ```
 
 Smoke-tested output:
@@ -183,6 +188,55 @@ outputs/libero_push_box_rollout_target_smoke/comparison.mp4
 
 The smoke check confirms that the observation case has no visible green target,
 while the paired task case shows the green target at the same rollout endpoint.
+
+### Balanced Pilot
+
+The second-stage dataset should keep straight and angled pushes separated, with
+roughly half of the examples in each split. The generator supports a balanced
+mode that fills quotas per `(friction, split, speed_bin)`. Speed bins are
+computed from `pusher_push_distance_x / pusher_push_steps`, so the final dataset
+does not collapse into only slow or only hard pushes.
+
+The balanced pilot was generated with four friction values, two direction
+splits, and three speed bins:
+
+```bash
+$PY scripts/generate_libero_push_box_rollout_target_dataset.py \
+  --resume-existing \
+  --output configs/libero_push_box_rollout_target_balanced_pilot.json \
+  --bddl-dir generated_bddl/push_box_rollout_target_balanced_pilot \
+  --frictions 0.005 0.02 0.1 0.2 \
+  --straight-angles 0 \
+  --angled-angles -10 10 \
+  --push-steps 4 6 8 \
+  --push-distances 0.22 0.24 0.26 \
+  --push-scales 32 40 48 \
+  --pairs-per-friction-split-speed-bin 1 \
+  --max-trials-per-bucket 40 \
+  --autosave-every 1 \
+  --probe-resolution 24 \
+  --camera-resolution 128 \
+  --max-steps 280 \
+  --max-eef-step 0.06
+```
+
+The completed pilot has 24 rollout pairs and 48 cases:
+
+- straight / angled: 12 / 12;
+- speed bins: 8 examples in each of 3 bins;
+- friction values `0.005`, `0.02`, `0.1`, `0.2`: 6 examples each;
+- no accepted rollout has a backward projected push action or backward
+  projected end-effector movement;
+- maximum end-effector step in the accepted set is 2.16 cm.
+
+Preview artifacts:
+
+```text
+configs/libero_push_box_rollout_target_balanced_pilot.json
+configs/libero_push_box_rollout_target_balanced_pilot_pair_preview.json
+outputs/libero_push_box_rollout_target_balanced_pilot_pair_preview/comparison.mp4
+outputs/libero_push_box_rollout_target_balanced_pilot_pair_preview/metadata.json
+```
 
 ## Commands
 
