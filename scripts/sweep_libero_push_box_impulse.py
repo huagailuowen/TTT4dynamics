@@ -30,9 +30,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--target-radius", type=float, default=0.025)
     parser.add_argument("--init-half-size", type=float, default=0.002)
     parser.add_argument("--push-distance-x", type=float, default=0.14)
+    parser.add_argument("--push-mode", choices=["impulse", "position"], default="impulse")
     parser.add_argument("--push-steps", type=int, nargs="+", default=[3, 4, 5, 6, 8])
     parser.add_argument("--push-scales", type=float, nargs="+", default=[8, 10, 12, 14, 16, 18, 20])
     parser.add_argument("--action-ends", type=float, nargs="+", default=[0.5, 0.6, 0.8, 1.0])
+    parser.add_argument("--approach-steps", type=int, default=25)
+    parser.add_argument("--descend-steps", type=int, default=35)
+    parser.add_argument("--push-action-delta", type=float, default=0.18)
+    parser.add_argument("--max-pos-action", type=float, default=1.0)
     parser.add_argument("--max-steps", type=int, default=220)
     parser.add_argument("--camera-resolution", type=int, default=24)
     parser.add_argument("--seed", type=int, default=0)
@@ -109,12 +114,15 @@ def main() -> None:
                 case = replace(
                     base,
                     case_id=f"{base.case_id}_s{push_scale:g}_n{push_steps}_a{action_end:g}",
+                    pusher_approach_steps=int(args.approach_steps),
+                    pusher_descend_steps=int(args.descend_steps),
                     pusher_push_steps=int(push_steps),
                     pusher_push_action_end=float(action_end),
-                    pusher_max_pos_action=1.0,
+                    pusher_max_pos_action=float(args.max_pos_action),
+                    pusher_push_action_delta=float(args.push_action_delta),
                     pusher_push_controller_scale=float(push_scale),
                     pusher_push_controller_scale_ramp_steps=2,
-                    pusher_push_mode="impulse",
+                    pusher_push_mode=str(args.push_mode),
                     controller_output_scale=1.0,
                     enable_controller_output_scaling=False,
                 )

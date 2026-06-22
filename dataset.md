@@ -78,6 +78,112 @@ outputs/libero_push_box_high_friction_impulse_selected_compare/02_sweep_mu1000_s
 outputs/libero_push_box_high_friction_impulse_selected_compare/comparison.mp4
 ```
 
+## All-Friction Compare
+
+The all-friction compare follows the friction bins from the earlier
+`libero_push_box_mu005_02_final_compare` output:
+
+```text
+0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2
+```
+
+Low friction should not be solved by a hard impulse. For `mu <= 0.02`, use a
+smooth position push and control force by changing how fast the position target
+moves each step:
+
+- keep the push path short;
+- use `pusher_push_mode = "position"`;
+- reduce `pusher_push_steps` to make the same push path faster;
+- increase `pusher_push_steps` to make the push gentler.
+
+For `mu >= 0.03`, the selected short impulse cases remain stable and reach the
+target cleanly.
+
+Selected all-friction cases:
+
+| friction_mu | mode | push_steps | push_distance | push_scale | final distance |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 0.005 | position | 28 | 0.15 m | 2 | 0.33 cm |
+| 0.010 | position | 16 | 0.16 m | 3 | 1.38 cm |
+| 0.020 | position | 8 | 0.18 m | 2 | 1.49 cm |
+| 0.030 | impulse | 4 | 0.14 m | 8 | 0.77 cm |
+| 0.040 | impulse | 3 | 0.14 m | 11 | 0.60 cm |
+| 0.050 | impulse | 3 | 0.14 m | 13 | 2.12 cm |
+| 0.075 | impulse | 3 | 0.14 m | 12 | 2.12 cm |
+| 0.100 | impulse | 3 | 0.14 m | 16 | 2.22 cm |
+| 0.125 | impulse | 3 | 0.14 m | 14 | 1.73 cm |
+| 0.150 | impulse | 3 | 0.14 m | 14 | 1.38 cm |
+| 0.175 | impulse | 3 | 0.14 m | 15 | 2.21 cm |
+| 0.200 | impulse | 4 | 0.14 m | 12 | 0.92 cm |
+
+Config and rendered output:
+
+```text
+configs/libero_push_box_all_friction_compare_selected.json
+outputs/libero_push_box_all_friction_compare/comparison.mp4
+outputs/libero_push_box_all_friction_compare/metadata.json
+```
+
+Every rendered case in the compare has `success = true`, no negative push-x
+action, and no end-effector x rollback during the push phase.
+
+## Rollout-Target Dataset
+
+For larger dataset construction, use a rollout-first target definition:
+
+1. Run the robot with a sampled friction, push direction, push distance, and
+   force setting.
+2. Let the object stop.
+3. Filter the rollout by reachable workspace, displacement range, and final
+   object speed.
+4. Use the final object xy as the target center.
+5. Emit two cases with identical physics and action settings:
+   - `observation_*`: target region is transparent, so the robot only observes
+     the physical outcome.
+   - `task_*`: target region is green and centered at the rollout endpoint.
+
+Push direction is represented by `pusher_push_angle_deg`. The controller treats
+the push offsets as local coordinates:
+
+- `0 deg` is a straight push along table +x;
+- angled pushes can be sampled in the `[-30 deg, 30 deg]` range;
+- approach, contact, push, and retreat targets all rotate with the same local
+  frame, so angled pushes do not require a separate controller.
+
+Force diversity is produced by varying:
+
+- `pusher_push_distance_x`;
+- `pusher_push_steps`;
+- friction coefficient;
+- push angle.
+
+For position pushes, smaller `pusher_push_steps` means the target advances more
+per environment step, which makes the same path a stronger push. Larger
+`pusher_push_steps` makes the push gentler.
+
+Generate a rollout-target dataset:
+
+```bash
+$PY scripts/generate_libero_push_box_rollout_target_dataset.py \
+  --output configs/libero_push_box_rollout_target_dataset.json \
+  --bddl-dir generated_bddl/push_box_rollout_target_dataset \
+  --frictions 0.005 0.01 0.02 0.05 0.1 0.2 \
+  --straight-angles 0 \
+  --angled-angles -30 -20 -10 10 20 30 \
+  --push-steps 8 12 16 20 24 28 \
+  --push-distances 0.12 0.14 0.16 0.18
+```
+
+Smoke-tested output:
+
+```text
+configs/libero_push_box_rollout_target_smoke.json
+outputs/libero_push_box_rollout_target_smoke/comparison.mp4
+```
+
+The smoke check confirms that the observation case has no visible green target,
+while the paired task case shows the green target at the same rollout endpoint.
+
 ## Commands
 
 Use the FastWAM virtualenv because it has LIBERO, robosuite, imageio, and the rendering dependencies installed.

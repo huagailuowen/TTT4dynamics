@@ -61,6 +61,7 @@ class LiberoPushBoxCase:
     pusher_approach_offset_xy: tuple[float, float] = (-0.12, 0.0)
     pusher_contact_offset_xy: tuple[float, float] = (-0.105, 0.0)
     pusher_push_distance_x: float = 0.10
+    pusher_push_angle_deg: float = 0.0
     pusher_push_profile: str = "smootherstep"
     pusher_push_mode: str = "impulse"
     pusher_push_yz_hold_gain: float = 2.0
@@ -128,6 +129,7 @@ class LiberoPushBoxCase:
             "pusher_approach_offset_xy": list(self.pusher_approach_offset_xy),
             "pusher_contact_offset_xy": list(self.pusher_contact_offset_xy),
             "pusher_push_distance_x": float(self.pusher_push_distance_x),
+            "pusher_push_angle_deg": float(self.pusher_push_angle_deg),
             "pusher_push_profile": self.pusher_push_profile,
             "pusher_push_mode": self.pusher_push_mode,
             "pusher_push_yz_hold_gain": float(self.pusher_push_yz_hold_gain),
@@ -461,23 +463,33 @@ class LiberoPushBoxEnv:
             self._initial_box_xyz, _ = self.box_pose()
         box = self._initial_box_xyz
         if phase == "approach":
-            offset = np.asarray(self.case.pusher_approach_offset_xy, dtype=np.float64)
+            offset = self._oriented_xy_offset(self.case.pusher_approach_offset_xy)
             z = float(self.case.pusher_approach_z)
         elif phase == "descend":
-            offset = np.asarray(self.case.pusher_contact_offset_xy, dtype=np.float64)
+            offset = self._oriented_xy_offset(self.case.pusher_contact_offset_xy)
             z = float(self.case.pusher_contact_z)
         elif phase == "push":
             push_start = int(self.case.pusher_approach_steps) + int(self.case.pusher_descend_steps)
             push_idx = max(0, int(self.step_count) - push_start)
             progress = min(1.0, float(push_idx + 1) / float(max(1, int(self.case.pusher_push_steps))))
             progress = self._push_progress(progress)
-            offset = np.asarray(self.case.pusher_contact_offset_xy, dtype=np.float64)
-            offset = offset + np.asarray([progress * float(self.case.pusher_push_distance_x), 0.0], dtype=np.float64)
+            offset = self._oriented_xy_offset(self.case.pusher_contact_offset_xy)
+            offset = offset + self._push_direction_xy() * progress * float(self.case.pusher_push_distance_x)
             z = float(self.case.pusher_contact_z)
         else:
-            offset = np.asarray(self.case.pusher_approach_offset_xy, dtype=np.float64)
+            offset = self._oriented_xy_offset(self.case.pusher_approach_offset_xy)
             z = float(self.case.pusher_retreat_z)
         return np.asarray([box[0] + offset[0], box[1] + offset[1], z], dtype=np.float64)
+
+    def _push_direction_xy(self) -> np.ndarray:
+        angle = np.deg2rad(float(self.case.pusher_push_angle_deg))
+        return np.asarray([np.cos(angle), np.sin(angle)], dtype=np.float64)
+
+    def _oriented_xy_offset(self, offset_xy: tuple[float, float]) -> np.ndarray:
+        local = np.asarray(offset_xy, dtype=np.float64)
+        direction = self._push_direction_xy()
+        lateral = np.asarray([-direction[1], direction[0]], dtype=np.float64)
+        return direction * local[0] + lateral * local[1]
 
     def _cartesian_action(
         self,

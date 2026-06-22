@@ -110,9 +110,11 @@ def _bddl_text(
     target_xy: tuple[float, float],
     init_half_size: float,
     target_radius: float,
+    target_rgba: tuple[float, float, float, float] = (0.0, 0.8, 0.2, 0.45),
 ) -> str:
     ix0, iy0, ix1, iy1 = _region_bounds(init_xy, init_half_size)
     tx0, ty0, tx1, ty1 = _region_bounds(target_xy, target_radius)
+    rgba = " ".join(f"{value:.3f}" for value in target_rgba)
     return f"""(define (problem LIBERO_Tabletop_Manipulation)
   (:domain robosuite)
   (:language push the cream cheese box across the smooth table into the green target region)
@@ -135,7 +137,7 @@ def _bddl_text(
             )
           )
           (:rgba
-              (0.0 0.8 0.2 0.45)
+              ({rgba})
           )
       )
     )
@@ -174,6 +176,7 @@ def write_geometry_bddl(
     target_xy: tuple[float, float],
     init_half_size: float,
     target_radius: float,
+    target_rgba: tuple[float, float, float, float] = (0.0, 0.8, 0.2, 0.45),
 ) -> str:
     bddl_dir.mkdir(parents=True, exist_ok=True)
     path = bddl_dir / f"push_box_{geometry_id}.bddl"
@@ -183,6 +186,7 @@ def write_geometry_bddl(
             target_xy=target_xy,
             init_half_size=init_half_size,
             target_radius=target_radius,
+            target_rgba=target_rgba,
         ),
         encoding="utf-8",
     )
