@@ -238,6 +238,130 @@ outputs/libero_push_box_rollout_target_balanced_pilot_pair_preview/comparison.mp
 outputs/libero_push_box_rollout_target_balanced_pilot_pair_preview/metadata.json
 ```
 
+### Formal LeRobot Dataset: `libero_push_box_rollout_target_v1`
+
+The formal rollout-target dataset is written directly under FastWAM's data
+directory. It has four LeRobot roots:
+
+```text
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_hidden_straight_lerobot
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_hidden_angled_lerobot
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_visible_straight_lerobot
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_visible_angled_lerobot
+```
+
+The hidden roots contain observation/play rollouts without a green target. The
+visible roots contain the paired task rollouts with the same physics and action
+sequence, but with the green target rendered at the rollout endpoint. Videos do
+not include debug text overlays; the case parameters are stored in metadata and
+filenames instead.
+
+Generation command:
+
+```bash
+$PY scripts/collect_libero_push_box_rollout_target_lerobot_dataset.py \
+  --output-prefix /inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1 \
+  --bddl-dir generated_bddl/push_box_rollout_target_v1 \
+  --frictions 0.005 0.02 0.1 0.2 \
+  --straight-angles 0 \
+  --angled-angles -30 -20 -10 10 20 30 \
+  --push-steps 8 12 16 28 40 \
+  --push-distances 0.12 0.16 0.20 0.24 \
+  --push-scales 4 \
+  --pairs-per-bucket 2 \
+  --max-trials-per-bucket 160 \
+  --camera-resolution 224 \
+  --video-crf 18 \
+  --jpeg-quality 98 \
+  --allow-incomplete \
+  --overwrite
+```
+
+Result summary:
+
+- 83 rollout pairs, 166 LeRobot episodes.
+- Straight / angled pairs: 40 / 43.
+- Friction pairs: `mu=0.005`: 14, `0.02`: 24, `0.1`: 24, `0.2`: 21.
+- Speed-bin pairs: `speed_00`: 32, `speed_01`: 28, `speed_02`: 23.
+- Distance-bin pairs: `dist_00`: 43, `dist_01`: 40.
+- Accepted displacement range: 5.1 cm to 33.8 cm.
+- Maximum accepted end-effector step: 1.96 cm.
+- Backward push-action count: 0 for accepted cases.
+
+Manifest:
+
+```text
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_manifest.json
+```
+
+### Supplement: High/Low Friction Coverage
+
+The first pass intentionally rejected some extreme buckets. In particular,
+low-friction `mu=0.005` with the highest speed and longest push tends to slide
+roughly 90 cm, which is outside the useful tabletop workspace and is not a good
+learning target. A relaxed supplement was generated to add more high-friction
+and low-friction coverage without accepting those physically unreasonable
+rollouts.
+
+Supplement roots:
+
+```text
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_supplement_relaxed_hidden_straight_lerobot
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_supplement_relaxed_hidden_angled_lerobot
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_supplement_relaxed_visible_straight_lerobot
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_supplement_relaxed_visible_angled_lerobot
+```
+
+Supplement command:
+
+```bash
+$PY scripts/collect_libero_push_box_rollout_target_lerobot_dataset.py \
+  --output-prefix /inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_supplement_relaxed \
+  --bddl-dir generated_bddl/push_box_rollout_target_v1_supplement_relaxed \
+  --frictions 0.005 0.2 \
+  --straight-angles 0 \
+  --angled-angles -30 -20 -10 10 20 30 \
+  --push-steps 8 12 16 28 40 \
+  --push-distances 0.12 0.14 0.16 0.179 0.18 \
+  --push-scales 4 \
+  --pairs-per-bucket 1 \
+  --max-trials-per-bucket 80 \
+  --max-displacement 0.42 \
+  --x-bounds -0.20 0.20 \
+  --y-bounds -0.16 0.16 \
+  --camera-resolution 224 \
+  --video-crf 18 \
+  --jpeg-quality 98 \
+  --allow-incomplete \
+  --overwrite
+```
+
+Supplement result summary:
+
+- 22 rollout pairs, 44 LeRobot episodes.
+- Straight / angled pairs: 11 / 11.
+- Friction pairs: `mu=0.005`: 10, `mu=0.2`: 12.
+- Speed-bin pairs: `speed_00`: 8, `speed_01`: 8, `speed_02`: 6.
+- Distance-bin pairs: `dist_00`: 12, `dist_01`: 10.
+- Accepted displacement range: 5.1 cm to 41.1 cm.
+- Maximum accepted end-effector step: 1.48 cm.
+- Backward push-action count: 0 for accepted cases.
+
+Manifest:
+
+```text
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_rollout_target_v1_supplement_relaxed_manifest.json
+```
+
+Combined, the two datasets provide 105 rollout pairs and 210 LeRobot episodes.
+For training runs that need all generated coverage, load both prefixes. For
+strict balanced analysis, use the main prefix first and add the supplement only
+when explicitly testing high/low-friction edge cases.
+
+The formal datasets use `224x224` camera images, CRF 18 video encoding, and JPEG
+quality 98. Earlier smoke videos were generated at lower resolution and higher
+CRF, so they should not be used to judge final visual quality.
+
 ## Commands
 
 Use the FastWAM virtualenv because it has LIBERO, robosuite, imageio, and the rendering dependencies installed.

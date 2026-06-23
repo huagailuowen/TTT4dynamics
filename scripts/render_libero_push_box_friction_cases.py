@@ -42,6 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--camera", choices=["agent", "wrist", "both"], default="agent")
     parser.add_argument("--comparison-cols", type=int, default=3)
+    parser.add_argument("--show-labels", action="store_true", help="Draw debug text overlays on rendered videos.")
     return parser.parse_args()
 
 
@@ -124,13 +125,15 @@ def _label_frame(frame: np.ndarray, lines: list[str]) -> np.ndarray:
     return np.asarray(pil)
 
 
-def _obs_to_frame(obs: dict, camera: str, lines: list[str]) -> np.ndarray:
+def _obs_to_frame(obs: dict, camera: str, lines: list[str], *, show_labels: bool) -> np.ndarray:
     agent = np.ascontiguousarray(obs["agentview_image"][::-1, ::-1])
     wrist = np.ascontiguousarray(obs["robot0_eye_in_hand_image"][::-1, ::-1])
     if camera == "agent":
-        return _label_frame(agent, lines)
+        return _label_frame(agent, lines) if show_labels else agent
     if camera == "wrist":
-        return _label_frame(wrist, lines)
+        return _label_frame(wrist, lines) if show_labels else wrist
+    if not show_labels:
+        return np.concatenate([agent, wrist], axis=1)
     return np.concatenate(
         [
             _label_frame(agent, ["agent"] + lines),
@@ -140,7 +143,16 @@ def _obs_to_frame(obs: dict, camera: str, lines: list[str]) -> np.ndarray:
     )
 
 
-def render_case(case: LiberoPushBoxCase, *, repo_root: Path, output: Path, fps: int, seed: int, camera: str) -> dict:
+def render_case(
+    case: LiberoPushBoxCase,
+    *,
+    repo_root: Path,
+    output: Path,
+    fps: int,
+    seed: int,
+    camera: str,
+    show_labels: bool,
+) -> dict:
     env = LiberoPushBoxEnv(case, repo_root=repo_root, seed=seed)
     frames: list[np.ndarray] = []
     step_records: list[dict] = []
@@ -161,6 +173,7 @@ def render_case(case: LiberoPushBoxCase, *, repo_root: Path, output: Path, fps: 
                     f"scale={case.controller_output_scale:.1f} stroke={case.pusher_push_distance_x * 100:.1f}cm push={case.pusher_push_steps}",
                     f"step={info.step:03d} dist={info.distance_to_target * 100:.1f}cm success={info.success}",
                 ],
+                show_labels=show_labels,
             )
         )
         with imageio.get_writer(output, fps=fps, codec="libx264") as writer:
@@ -177,6 +190,7 @@ def render_case(case: LiberoPushBoxCase, *, repo_root: Path, output: Path, fps: 
                         f"scale={case.controller_output_scale:.1f} stroke={case.pusher_push_distance_x * 100:.1f}cm push={case.pusher_push_steps}",
                         f"step={record['step']:03d} dist={record['distance_to_target'] * 100:.1f}cm success={record['success']}",
                     ],
+                    show_labels=show_labels,
                 )
                 frames.append(frame)
                 writer.append_data(frame)
@@ -241,6 +255,7 @@ def main() -> None:
             fps=args.fps,
             seed=args.seed,
             camera=args.camera,
+            show_labels=bool(args.show_labels),
         )
         results.append(result)
         final = result["final"]
