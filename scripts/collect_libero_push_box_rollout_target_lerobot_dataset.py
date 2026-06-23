@@ -66,6 +66,13 @@ def parse_args() -> argparse.Namespace:
         default=REPO_ROOT / "generated_bddl" / "push_box_rollout_target_v1",
     )
     parser.add_argument("--frictions", type=float, nargs="+", default=[0.005, 0.02, 0.1, 0.2])
+    parser.add_argument(
+        "--splits",
+        nargs="+",
+        default=["straight", "angled"],
+        choices=["straight", "angled"],
+        help="Which push direction families to collect. Use separate runs for clean parallel straight/angled output.",
+    )
     parser.add_argument("--straight-angles", type=float, nargs="+", default=[0.0])
     parser.add_argument("--angled-angles", type=float, nargs="+", default=[-30.0, -20.0, -10.0, 10.0, 20.0, 30.0])
     parser.add_argument(
@@ -93,6 +100,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pairs-per-bucket", type=int, default=1)
     parser.add_argument("--max-trials-per-bucket", type=int, default=80)
     parser.add_argument("--max-pairs", type=int, default=0, help="Debug cap on accepted rollout pairs. 0 means all buckets.")
+    parser.add_argument(
+        "--max-pairs-per-friction",
+        type=int,
+        default=0,
+        help="Optional marginal cap per friction value. Useful when balancing split/distance but keeping friction roughly even.",
+    )
     parser.add_argument("--autosave-every", type=int, default=1)
     parser.add_argument("--progress-every", type=int, default=20)
     parser.add_argument("--overwrite", action="store_true")
@@ -104,12 +117,38 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-shuffle-candidates", action="store_true")
     parser.add_argument("--speed-bin-edges", type=float, nargs="+", default=[0.006, 0.012])
     parser.add_argument("--distance-bin-edges", type=float, nargs="+", default=[0.18])
+    parser.add_argument(
+        "--displacement-bin-edges",
+        type=float,
+        nargs="+",
+        default=[0.20, 0.35],
+        help="Actual rollout displacement bin edges in meters, computed after probing.",
+    )
+    parser.add_argument(
+        "--displacement-bin-quotas",
+        type=int,
+        nargs="+",
+        default=None,
+        help=(
+            "Per-bucket quotas for actual displacement bins. For edges [0.20,0.35], "
+            "three quotas map to short/mid/long bins."
+        ),
+    )
     parser.add_argument("--scale-bin-edges", type=float, nargs="+", default=[2.0])
+    parser.add_argument(
+        "--calibration-table",
+        type=Path,
+        default=None,
+        help=(
+            "Optional recommendations JSON from calibrate_libero_push_box_push_table.py. "
+            "When provided, candidate pushes are generated around the calibrated mode/stroke/speed/scale settings."
+        ),
+    )
     parser.add_argument(
         "--balance-dimensions",
         nargs="+",
         default=["friction", "split", "speed_bin", "distance_bin"],
-        choices=["friction", "split", "speed_bin", "distance_bin", "scale_bin", "init_bin"],
+        choices=["friction", "split", "speed_bin", "distance_bin", "displacement_bin", "scale_bin", "init_bin"],
     )
     parser.add_argument("--min-displacement", type=float, default=0.05)
     parser.add_argument("--max-displacement", type=float, default=0.34)
@@ -140,6 +179,10 @@ def value_bin(value: float, edges: list[float], prefix: str) -> str:
         if float(value) < edge:
             return f"{prefix}_{idx:02d}"
     return f"{prefix}_{len(sorted_edges):02d}"
+
+
+def bin_values(edges: list[float], prefix: str) -> list[str]:
+    return [f"{prefix}_{idx:02d}" for idx in range(len(edges) + 1)]
 
 
 def _quat_to_axisangle(quat: np.ndarray) -> np.ndarray:
@@ -243,10 +286,16 @@ def prompt_for_case(domain: str, split: str) -> list[str]:
 
 
 def build_candidates(args: argparse.Namespace) -> list[dict[str, Any]]:
+    if args.calibration_table is not None:
+        return build_calibrated_candidates(args)
+
     init_xys = parse_init_xys(args.init_xys)
-    angle_splits = [("straight", float(a)) for a in args.straight_angles] + [
-        ("angled", float(a)) for a in args.angled_angles
-    ]
+    selected_splits = set(str(split) for split in args.splits)
+    angle_splits = []
+    if "straight" in selected_splits:
+        angle_splits.extend(("straight", float(a)) for a in args.straight_angles)
+    if "angled" in selected_splits:
+        angle_splits.extend(("angled", float(a)) for a in args.angled_angles)
     candidates: list[dict[str, Any]] = []
     for init_id, init_xy in init_xys:
         for friction_mu in [float(mu) for mu in args.frictions]:
@@ -265,6 +314,8 @@ def build_candidates(args: argparse.Namespace) -> list[dict[str, Any]]:
                                     "push_distance": push_distance,
                                     "push_steps": push_steps,
                                     "push_scale": push_scale,
+                                    "push_mode": "position",
+                                    "action_end": 1.0,
                                     "speed_m_per_step": speed,
                                     "speed_bin": speed_bin(speed, [float(v) for v in args.speed_bin_edges]),
                                     "distance_bin": value_bin(push_distance, [float(v) for v in args.distance_bin_edges], "dist"),
@@ -278,21 +329,183 @@ def build_candidates(args: argparse.Namespace) -> list[dict[str, Any]]:
     return candidates
 
 
-def bucket_key(candidate: dict[str, Any], dimensions: list[str]) -> tuple[str, ...]:
+def _load_calibration_recommendations(path: Path) -> list[dict[str, Any]]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    rows = payload.get("recommendations", payload if isinstance(payload, list) else [])
+    return [row for row in rows if isinstance(row, dict)]
+
+
+def _nearest_calibration_rows(rows: list[dict[str, Any]], friction_mu: float, angle_deg: float) -> list[dict[str, Any]]:
+    if not rows:
+        return []
+    min_mu_delta = min(abs(float(row.get("friction_mu", 0.0)) - float(friction_mu)) for row in rows)
+    mu_rows = [row for row in rows if abs(abs(float(row.get("friction_mu", 0.0)) - float(friction_mu)) - min_mu_delta) < 1e-9]
+    min_angle_delta = min(abs(float(row.get("angle_deg", 0.0)) - float(angle_deg)) for row in mu_rows)
+    return [row for row in mu_rows if abs(abs(float(row.get("angle_deg", 0.0)) - float(angle_deg)) - min_angle_delta) < 1e-9]
+
+
+def _calibrated_variants(row: dict[str, Any]) -> list[dict[str, Any]]:
+    mode = str(row.get("mode", "position"))
+    base_steps = int(row.get("push_steps", 8))
+    base_distance = float(row.get("push_distance_m", row.get("push_distance", 0.14)))
+    base_scale = float(row.get("push_scale", 1.0))
+    base_action_end = float(row.get("action_end", 1.0 if mode == "position" else 0.4))
+    variants = [
+        (base_distance, base_steps, base_scale, base_action_end, "calibrated"),
+        (base_distance, max(1, base_steps - 1), base_scale, base_action_end, "step_minus"),
+        (base_distance, base_steps + 1, base_scale, base_action_end, "step_plus"),
+        (base_distance, base_steps, max(1.0, base_scale - 2.0), base_action_end, "scale_minus"),
+        (base_distance, base_steps, base_scale + 2.0, base_action_end, "scale_plus"),
+        (max(0.10, base_distance - 0.02), base_steps, base_scale, base_action_end, "stroke_minus"),
+        (base_distance + 0.02, base_steps, base_scale, base_action_end, "stroke_plus"),
+    ]
+    if mode == "impulse":
+        variants.extend(
+            [
+                (base_distance, base_steps, base_scale, max(0.2, base_action_end - 0.05), "action_minus"),
+                (base_distance, base_steps, base_scale, base_action_end + 0.05, "action_plus"),
+            ]
+        )
+    out = []
+    seen: set[tuple[float, int, float, float]] = set()
+    for push_distance, push_steps, push_scale, action_end, source in variants:
+        key = (round(float(push_distance), 4), int(push_steps), round(float(push_scale), 4), round(float(action_end), 4))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(
+            {
+                "push_mode": mode,
+                "push_distance": float(push_distance),
+                "push_steps": int(push_steps),
+                "push_scale": float(push_scale),
+                "action_end": float(action_end),
+                "calibration_source": source,
+                "target_hint_m": float(row.get("target_displacement_m", row.get("displacement_m", 0.0))),
+                "calibrated_displacement_m": float(row.get("displacement_m", 0.0)),
+                "calibrated_valid": bool(row.get("valid", False)),
+            }
+        )
+    return out
+
+
+def build_calibrated_candidates(args: argparse.Namespace) -> list[dict[str, Any]]:
+    init_xys = parse_init_xys(args.init_xys)
+    selected_splits = set(str(split) for split in args.splits)
+    angle_splits = []
+    if "straight" in selected_splits:
+        angle_splits.extend(("straight", float(a)) for a in args.straight_angles)
+    if "angled" in selected_splits:
+        angle_splits.extend(("angled", float(a)) for a in args.angled_angles)
+
+    calibration_rows = _load_calibration_recommendations(args.calibration_table)
+    candidates: list[dict[str, Any]] = []
+    for init_id, init_xy in init_xys:
+        for friction_mu in [float(mu) for mu in args.frictions]:
+            for split, angle_deg in angle_splits:
+                rows = _nearest_calibration_rows(calibration_rows, friction_mu, angle_deg)
+                for row in sorted(rows, key=lambda item: float(item.get("target_displacement_m", 0.0))):
+                    for variant in _calibrated_variants(row):
+                        push_distance = float(variant["push_distance"])
+                        push_steps = int(variant["push_steps"])
+                        push_scale = float(variant["push_scale"])
+                        speed = push_distance / float(max(1, push_steps))
+                        candidates.append(
+                            {
+                                "init_id": init_id,
+                                "init_xy": init_xy,
+                                "friction_mu": friction_mu,
+                                "split": split,
+                                "angle_deg": angle_deg,
+                                "push_distance": push_distance,
+                                "push_steps": push_steps,
+                                "push_scale": push_scale,
+                                "push_mode": str(variant["push_mode"]),
+                                "action_end": float(variant["action_end"]),
+                                "calibration_source": str(variant["calibration_source"]),
+                                "target_hint_m": float(variant["target_hint_m"]),
+                                "calibrated_displacement_m": float(variant["calibrated_displacement_m"]),
+                                "calibrated_valid": bool(variant["calibrated_valid"]),
+                                "speed_m_per_step": speed,
+                                "speed_bin": speed_bin(speed, [float(v) for v in args.speed_bin_edges]),
+                                "distance_bin": value_bin(push_distance, [float(v) for v in args.distance_bin_edges], "dist"),
+                                "scale_bin": value_bin(push_scale, [float(v) for v in args.scale_bin_edges], "scale"),
+                                "init_bin": init_id,
+                            }
+                        )
+    if not args.no_shuffle_candidates:
+        rng = np.random.default_rng(int(args.seed))
+        rng.shuffle(candidates)
+    return candidates
+
+
+def bucket_key(
+    candidate: dict[str, Any],
+    dimensions: list[str],
+    *,
+    displacement_bin: str | None = None,
+) -> tuple[str, ...]:
     values = {
         "friction": mu_tag(float(candidate["friction_mu"])),
         "split": str(candidate["split"]),
         "speed_bin": str(candidate["speed_bin"]),
         "distance_bin": str(candidate["distance_bin"]),
+        "displacement_bin": displacement_bin,
         "scale_bin": str(candidate["scale_bin"]),
         "init_bin": str(candidate["init_bin"]),
     }
+    if "displacement_bin" in dimensions and displacement_bin is None:
+        raise ValueError("displacement_bin is required when balancing on actual displacement")
     return tuple(values[dim] for dim in dimensions)
 
 
-def build_target_buckets(candidates: list[dict[str, Any]], dimensions: list[str], quota: int) -> dict[tuple[str, ...], int]:
-    keys = sorted({bucket_key(candidate, dimensions) for candidate in candidates})
-    return {key: int(quota) for key in keys}
+def build_target_buckets(
+    candidates: list[dict[str, Any]],
+    dimensions: list[str],
+    quota: int,
+    *,
+    displacement_edges: list[float],
+    displacement_quotas: list[int] | None,
+) -> dict[tuple[str, ...], int]:
+    if "displacement_bin" not in dimensions:
+        keys = sorted({bucket_key(candidate, dimensions) for candidate in candidates})
+        return {key: int(quota) for key in keys}
+
+    displacement_bins = bin_values(displacement_edges, "disp")
+    if displacement_quotas is not None and len(displacement_quotas) != len(displacement_bins):
+        raise ValueError(
+            f"--displacement-bin-quotas must have {len(displacement_bins)} values for "
+            f"{len(displacement_edges)} edges, got {len(displacement_quotas)}"
+        )
+
+    keys: set[tuple[str, ...]] = set()
+    for candidate in candidates:
+        for disp_bin in displacement_bins:
+            keys.add(bucket_key(candidate, dimensions, displacement_bin=disp_bin))
+
+    quotas = {}
+    disp_index = {name: idx for idx, name in enumerate(displacement_bins)}
+    disp_dim_index = dimensions.index("displacement_bin")
+    for key in sorted(keys):
+        if displacement_quotas is None:
+            quotas[key] = int(quota)
+        else:
+            quotas[key] = int(displacement_quotas[disp_index[str(key[disp_dim_index])]])
+    return quotas
+
+
+def possible_bucket_keys(
+    candidate: dict[str, Any],
+    dimensions: list[str],
+    *,
+    displacement_edges: list[float],
+) -> list[tuple[str, ...]]:
+    if "displacement_bin" not in dimensions:
+        return [bucket_key(candidate, dimensions)]
+    return [
+        bucket_key(candidate, dimensions, displacement_bin=disp_bin)
+        for disp_bin in bin_values(displacement_edges, "disp")
+    ]
 
 
 def patch_lerobot_video_crf(crf: int) -> None:
@@ -409,11 +622,13 @@ def write_frames_to_dataset(
 
 
 def make_case_id(candidate: dict[str, Any]) -> str:
+    mode = str(candidate.get("push_mode", "position"))[:3]
+    action_end = int(round(float(candidate.get("action_end", 1.0)) * 100))
     return (
         f"{candidate['init_id']}_{candidate['split']}_{mu_tag(float(candidate['friction_mu']))}_"
         f"{candidate['speed_bin']}_{candidate['distance_bin']}_{candidate['scale_bin']}_"
         f"{angle_tag(float(candidate['angle_deg']))}_d{int(round(float(candidate['push_distance']) * 100)):02d}_"
-        f"n{int(candidate['push_steps']):02d}_s{float(candidate['push_scale']):g}"
+        f"n{int(candidate['push_steps']):02d}_s{float(candidate['push_scale']):g}_{mode}_ae{action_end:03d}"
     )
 
 
@@ -445,11 +660,12 @@ def to_jsonable(value: Any) -> Any:
 
 def create_datasets(args: argparse.Namespace) -> dict[tuple[str, str], LeRobotDataset]:
     output_prefix = args.output_prefix.resolve()
+    selected_splits = set(str(split) for split in args.splits)
     roots = {
-        ("observation", "straight"): dataset_root(output_prefix, "observation", "straight"),
-        ("observation", "angled"): dataset_root(output_prefix, "observation", "angled"),
-        ("task", "straight"): dataset_root(output_prefix, "task", "straight"),
-        ("task", "angled"): dataset_root(output_prefix, "task", "angled"),
+        (domain, split): dataset_root(output_prefix, domain, split)
+        for domain in ("observation", "task")
+        for split in ("straight", "angled")
+        if split in selected_splits
     }
     existing = [root for root in roots.values() if root.exists()]
     if existing and not args.overwrite:
@@ -482,9 +698,20 @@ def main() -> None:
     datasets = create_datasets(args)
     candidates = build_candidates(args)
     dimensions = list(args.balance_dimensions)
-    target_buckets = build_target_buckets(candidates, dimensions, int(args.pairs_per_bucket))
+    displacement_edges = [float(v) for v in args.displacement_bin_edges]
+    target_buckets = build_target_buckets(
+        candidates,
+        dimensions,
+        int(args.pairs_per_bucket),
+        displacement_edges=displacement_edges,
+        displacement_quotas=[int(v) for v in args.displacement_bin_quotas]
+        if args.displacement_bin_quotas is not None
+        else None,
+    )
+    target_pair_count = int(sum(target_buckets.values()))
     accepted_buckets = {key: 0 for key in target_buckets}
     trial_buckets = {key: 0 for key in target_buckets}
+    accepted_frictions = {mu_tag(float(mu)): 0 for mu in args.frictions}
 
     subset_rows: dict[tuple[str, str], list[dict[str, Any]]] = {key: [] for key in datasets}
     subset_metadata: dict[tuple[str, str], dict[str, Any]] = {}
@@ -513,6 +740,7 @@ def main() -> None:
         "balance_dimensions": dimensions,
         "target_buckets": {"|".join(key): value for key, value in target_buckets.items()},
         "accepted_buckets": {},
+        "accepted_frictions": {},
         "trial_buckets": {},
         "pairs": [],
         "rejected": [],
@@ -526,6 +754,7 @@ def main() -> None:
 
     def autosave() -> None:
         manifest["accepted_buckets"] = {"|".join(key): value for key, value in accepted_buckets.items()}
+        manifest["accepted_frictions"] = dict(accepted_frictions)
         manifest["trial_buckets"] = {"|".join(key): value for key, value in trial_buckets.items()}
         manifest["missing_buckets"] = {
             "|".join(key): target_buckets[key] - accepted_buckets.get(key, 0)
@@ -538,12 +767,16 @@ def main() -> None:
 
     try:
         for candidate in candidates:
-            key = bucket_key(candidate, dimensions)
-            if accepted_buckets.get(key, 0) >= int(args.pairs_per_bucket):
+            candidate_possible_keys = possible_bucket_keys(
+                candidate,
+                dimensions,
+                displacement_edges=displacement_edges,
+            )
+            if all(
+                accepted_buckets.get(possible_key, 0) >= target_buckets.get(possible_key, 0)
+                for possible_key in candidate_possible_keys
+            ):
                 continue
-            if int(args.max_trials_per_bucket) > 0 and trial_buckets.get(key, 0) >= int(args.max_trials_per_bucket):
-                continue
-            trial_buckets[key] = trial_buckets.get(key, 0) + 1
 
             base_id = make_case_id(candidate)
             init_xy = tuple(float(v) for v in candidate["init_xy"])
@@ -577,6 +810,13 @@ def main() -> None:
                 camera_resolution=int(args.probe_resolution),
                 target_radius=float(args.target_radius),
             )
+            probe = replace(
+                probe,
+                pusher_push_mode=str(candidate.get("push_mode", "position")),
+                pusher_push_action_end=float(candidate.get("action_end", 1.0)),
+                pusher_push_controller_scale=float(candidate["push_scale"]),
+                pusher_max_push_controller_scale=max(20.0, float(candidate["push_scale"])),
+            )
             result = rollout(probe, repo_root=repo_root, seed=int(args.seed))
             accepted, metrics = accept_rollout(
                 init_xy=init_xy,
@@ -594,12 +834,35 @@ def main() -> None:
                     "speed_m_per_step": float(candidate["speed_m_per_step"]),
                     "speed_bin": str(candidate["speed_bin"]),
                     "distance_bin": str(candidate["distance_bin"]),
+                    "displacement_bin": value_bin(
+                        float(metrics["displacement_m"]),
+                        displacement_edges,
+                        "disp",
+                    ),
                     "scale_bin": str(candidate["scale_bin"]),
                 }
             )
+            key = bucket_key(candidate, dimensions, displacement_bin=str(metrics["displacement_bin"]))
+            if int(args.max_trials_per_bucket) > 0 and trial_buckets.get(key, 0) >= int(args.max_trials_per_bucket):
+                manifest["rejected"].append(
+                    {"case_id": base_id, "reason": "bucket_trial_limit", "candidate": candidate, "metrics": metrics}
+                )
+                continue
+            trial_buckets[key] = trial_buckets.get(key, 0) + 1
+
             rejected_reason = ""
             if not accepted:
                 rejected_reason = "acceptance"
+            elif key not in target_buckets:
+                rejected_reason = "bucket_not_requested"
+            elif accepted_buckets.get(key, 0) >= target_buckets.get(key, 0):
+                rejected_reason = "bucket_full"
+            elif (
+                int(args.max_pairs_per_friction) > 0
+                and accepted_frictions.get(mu_tag(float(candidate["friction_mu"])), 0)
+                >= int(args.max_pairs_per_friction)
+            ):
+                rejected_reason = "friction_cap"
             elif int(result["push_backward_action_count"]) > 0:
                 rejected_reason = "backward_action"
             elif int(result["push_eef_backward_steps"]) > 0:
@@ -609,6 +872,13 @@ def main() -> None:
 
             if (
                 not accepted
+                or key not in target_buckets
+                or accepted_buckets.get(key, 0) >= target_buckets.get(key, 0)
+                or (
+                    int(args.max_pairs_per_friction) > 0
+                    and accepted_frictions.get(mu_tag(float(candidate["friction_mu"])), 0)
+                    >= int(args.max_pairs_per_friction)
+                )
                 or int(result["push_backward_action_count"]) > 0
                 or int(result["push_eef_backward_steps"]) > 0
                 or float(result["max_eef_step_m"]) > float(args.max_eef_step)
@@ -715,6 +985,9 @@ def main() -> None:
             }
             manifest["pairs"].append(pair_record)
             accepted_buckets[key] = accepted_buckets.get(key, 0) + 1
+            accepted_frictions[mu_tag(float(candidate["friction_mu"]))] = (
+                accepted_frictions.get(mu_tag(float(candidate["friction_mu"])), 0) + 1
+            )
 
             for domain, case, rollout_result in (
                 ("observation", observation_case, obs_rollout),
@@ -734,7 +1007,12 @@ def main() -> None:
                     "angle_deg": float(candidate["angle_deg"]),
                     "push_distance_x": float(candidate["push_distance"]),
                     "pusher_push_steps": int(candidate["push_steps"]),
+                    "pusher_push_mode": str(candidate.get("push_mode", "position")),
+                    "pusher_push_action_end": float(candidate.get("action_end", 1.0)),
                     "pusher_push_controller_scale": float(candidate["push_scale"]),
+                    "calibration_source": candidate.get("calibration_source"),
+                    "target_hint_m": candidate.get("target_hint_m"),
+                    "calibrated_displacement_m": candidate.get("calibrated_displacement_m"),
                     "speed_m_per_step": float(candidate["speed_m_per_step"]),
                     "speed_bin": str(candidate["speed_bin"]),
                     "distance_bin": str(candidate["distance_bin"]),
@@ -748,7 +1026,7 @@ def main() -> None:
                 subset_metadata[subset_key]["episodes"].append(row)
 
             print(
-                f"accepted {len(manifest['pairs']):04d}/{len(target_buckets) * int(args.pairs_per_bucket):04d} "
+                f"accepted {len(manifest['pairs']):04d}/{target_pair_count:04d} "
                 f"{base_id} bucket={'|'.join(key)} disp={metrics['displacement_m'] * 100:.1f}cm "
                 f"episodes={episode_indices}",
                 flush=True,

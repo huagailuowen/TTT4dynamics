@@ -362,6 +362,63 @@ The formal datasets use `224x224` camera images, CRF 18 video encoding, and JPEG
 quality 98. Earlier smoke videos were generated at lower resolution and higher
 CRF, so they should not be used to judge final visual quality.
 
+### Calibrated V2 100-Pair Dataset
+
+The calibrated v2 dataset uses a no-video probe table to choose push mode,
+stroke, step count, controller scale, and impulse action cutoff before writing
+LeRobot episodes. It avoids the older blind sweep and keeps the final dataset as
+four clean subsets: hidden/visible target crossed with straight/angled pushes.
+
+Final root:
+
+```text
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_calibrated_v2_100pairs
+```
+
+Subset roots:
+
+```text
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_calibrated_v2_100pairs/libero_push_box_calibrated_v2_100pairs_hidden_straight_lerobot
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_calibrated_v2_100pairs/libero_push_box_calibrated_v2_100pairs_visible_straight_lerobot
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_calibrated_v2_100pairs/libero_push_box_calibrated_v2_100pairs_hidden_angled_lerobot
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_calibrated_v2_100pairs/libero_push_box_calibrated_v2_100pairs_visible_angled_lerobot
+```
+
+Manifest:
+
+```text
+/inspire/hdd/project/robot-reasoning/xuyue-p-xuyue/cy/tool_adaptation_Project/TTTdynamics/repos/FastWAM/data/libero_push_box_calibrated_v2_100pairs/libero_push_box_calibrated_v2_100pairs_manifest.json
+```
+
+Result summary:
+
+- 100 rollout pairs, 200 LeRobot episodes.
+- Straight / angled pairs: 50 / 50.
+- Each friction value has 20 pairs: `0.005`, `0.02`, `0.05`, `0.1`, `0.2`.
+- Actual displacement bins: short `10-20 cm`: 28 pairs, mid `20-35 cm`: 40 pairs, long `35-55 cm`: 32 pairs.
+- Per split this is short / mid / long = 14 / 20 / 16.
+- Actual displacement range: 10.823 cm to 55.409 cm.
+- Push modes: 50 position-control rollouts and 50 impulse rollouts.
+- No target parameters are overlaid on frames; parameters are stored in case IDs, manifest records, and per-episode metadata.
+
+Calibration table:
+
+```text
+configs/libero_push_box_push_calibration_table.json
+configs/libero_push_box_push_calibration_table.md
+```
+
+Generation command:
+
+```bash
+MUJOCO_GL=egl MUJOCO_EGL_DEVICE_ID=0 \
+  scripts/launch_push_box_calibrated_v2_100pairs_tmux.sh
+```
+
+The launcher runs straight and angled collectors in parallel under
+`tmp/libero_push_box_calibrated_v2_100pairs`, then moves only the four final
+LeRobot subsets and the combined manifest into the final root above.
+
 ## Commands
 
 Use the FastWAM virtualenv because it has LIBERO, robosuite, imageio, and the rendering dependencies installed.

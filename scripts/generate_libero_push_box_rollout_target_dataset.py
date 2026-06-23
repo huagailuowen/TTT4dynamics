@@ -147,6 +147,7 @@ def build_probe_case(
         pusher_max_pos_action=1.0,
         pusher_push_action_delta=10.0,
         pusher_push_controller_scale=float(push_scale),
+        pusher_max_push_controller_scale=max(20.0, float(push_scale)),
         pusher_push_controller_scale_ramp_steps=2,
         controller_output_scale=1.0,
         enable_controller_output_scaling=False,

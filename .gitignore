@@ -44,6 +44,7 @@ runs/
 results/
 evaluate_results/
 logs/
+tmp/
 videos/
 rendered_videos/
 *.log
