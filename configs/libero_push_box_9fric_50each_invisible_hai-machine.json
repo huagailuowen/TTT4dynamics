@@ -1,0 +1,77 @@
+{
+  "name": "libero_push_box_9fric_50each_invisible_hai-machine",
+  "machine": "hai-machine",
+  "description": "Hai-machine local config for hidden-target LIBERO push-box data generation: 9 friction values, 50 samples per friction, 450 hidden samples total.",
+  "paths": {
+    "repo": "/home/yininghong/chenyuan/TTT-physics/repos",
+    "project_root": "/home/yininghong/chenyuan/TTT-physics/repos/TTT4dynamics",
+    "fastwam_root": "/home/yininghong/chenyuan/TTT-physics/repos/FastWAM",
+    "python": "/home/yininghong/chenyuan/TTT-physics/repos/TTT4dynamics/.venv/bin/python",
+    "collector": "/home/yininghong/chenyuan/TTT-physics/repos/TTT4dynamics/scripts/collect_libero_push_box_rollout_target_invisible_hai-machine.py",
+    "launcher": "/home/yininghong/chenyuan/TTT-physics/repos/TTT4dynamics/scripts/launch_push_box_9fric_50each_invisible_hai-machine.sh",
+    "calibration_table": "/home/yininghong/chenyuan/TTT-physics/repos/TTT4dynamics/configs/libero_push_box_push_calibration_table.json",
+    "output_root": "/home/yininghong/chenyuan/TTT-physics/repos/FastWAM/data/libero_push_box_9fric_50each_invisible_hai-machine"
+  },
+  "target_visibility": {
+    "visible_target_dataset": false,
+    "hidden_target_dataset": true,
+    "target_rgba": [0.0, 0.0, 0.0, 0.0]
+  },
+  "frictions": [
+    0.005,
+    0.01,
+    0.02,
+    0.035,
+    0.05,
+    0.075,
+    0.1,
+    0.15,
+    0.2
+  ],
+  "sampling": {
+    "splits": ["straight", "angled"],
+    "samples_per_friction_total": 50,
+    "samples_per_friction_per_split": 25,
+    "total_hidden_pairs": 450,
+    "balance_dimensions": ["friction", "split", "displacement_bin"],
+    "displacement_bin_edges_m": [0.2, 0.35],
+    "combined_short_mid_long_quotas_per_friction": [14, 20, 16],
+    "per_split_short_mid_long_quotas_per_friction": [7, 10, 8]
+  },
+  "generation": {
+    "init_xys": [
+      "-0.255,-0.055",
+      "-0.245,-0.035",
+      "-0.235,-0.015",
+      "-0.225,0.005",
+      "-0.215,0.025"
+    ],
+    "max_trials_per_bucket": 1600,
+    "max_steps": 360,
+    "camera_resolution": 224,
+    "probe_resolution": 24,
+    "video_crf": 18,
+    "jpeg_quality": 98,
+    "min_displacement": 0.1,
+    "max_displacement": 0.56,
+    "x_bounds": [-0.24, 0.4],
+    "y_bounds": [-0.28, 0.28],
+    "max_final_speed": 0.04,
+    "max_eef_step": 0.065
+  },
+  "calibration_policy": {
+    "mode": "nearest_existing_table_then_local_refinement",
+    "existing_table_frictions": [0.005, 0.02, 0.05, 0.1, 0.2],
+    "new_intermediate_frictions_use_nearest_rows": [0.01, 0.035, 0.075, 0.15],
+    "local_refinement": [
+      "calibrated",
+      "step_minus",
+      "step_plus",
+      "scale_minus",
+      "scale_plus",
+      "stroke_minus",
+      "stroke_plus",
+      "action_minus/action_plus for impulse rows"
+    ]
+  }
+}
