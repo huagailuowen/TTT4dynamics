@@ -1,0 +1,43 @@
+{
+  "dataset_name": "libero_push_box_70fric_9action_fixed_scene_hidden_lerobot_hai-machine",
+  "created_for": "action-conditioned world model",
+  "friction_count": 70,
+  "friction_min": 0.002,
+  "friction_max": 0.25,
+  "friction_spacing": "linear",
+  "init_xy": [-0.245, -0.035],
+  "dummy_target_distance": 0.8,
+  "target_radius": 0.025,
+  "camera_resolution": 224,
+  "probe_resolution": 32,
+  "fps": 20,
+  "hidden_only": true,
+  "visible_dataset": false,
+  "prepare_config": {
+    "approach_steps": 35,
+    "descend_steps": 35,
+    "prepare_position_gain": 7.0,
+    "prepare_max_pos_action": 0.70,
+    "prepare_action_delta": 0.14,
+    "contact_offset_x": -0.115,
+    "retreat_steps": 60,
+    "settle_steps": 100
+  },
+  "action_profile_rule": "[0.5] + [1.0] * (push_steps - 3) + [0.5, 0.0]",
+  "actions": [
+    {"action_id": 0, "A": 0.040, "push_steps": 18, "description": "lowest, long plateau to ensure peak-speed contact"},
+    {"action_id": 1, "A": 0.050, "push_steps": 16, "description": "low"},
+    {"action_id": 2, "A": 0.060, "push_steps": 16, "description": "low-mid"},
+    {"action_id": 3, "A": 0.070, "push_steps": 16, "description": "mid-low"},
+    {"action_id": 4, "A": 0.080, "push_steps": 16, "description": "mid"},
+    {"action_id": 5, "A": 0.165, "push_steps": 10, "description": "mid-high, original short profile"},
+    {"action_id": 6, "A": 0.240, "push_steps": 10, "description": "high"},
+    {"action_id": 7, "A": 0.430, "push_steps": 10, "description": "very high"},
+    {"action_id": 8, "A": 0.680, "push_steps": 10, "description": "highest stable candidate"}
+  ],
+  "quality_notes": [
+    "This dataset is for action-conditioned world model training, not VLA action imitation.",
+    "No visible target dataset is generated.",
+    "Observation state is recorded directly from LIBERO obs as eef_xyz + eef_quat axis-angle + robot0_gripper_qpos."
+  ]
+}
