@@ -1,0 +1,22 @@
+{
+  "study": "Matched-action target-velocity comparison across three object shapes and three friction levels",
+  "source_experiment_config": "configs/libero_plus_push_box_shape_diverse_targets_and_clutter_full_trajectory_9demo_2026-07-19_hai-machine.json",
+  "matched_action": {
+    "action_id": 4,
+    "kind": "straight_matched_action",
+    "angle_deg": 0.0,
+    "A": 0.25,
+    "contact_lateral_offset_m": 0.0,
+    "target_projected_travel_m": 0.05
+  },
+  "object_ids": [0, 1, 2],
+  "friction_mu": [0.02, 0.08, 0.15],
+  "fixed_seed": 3900,
+  "fixed_initial_position": true,
+  "target_mass_kg": 0.008,
+  "stop_speed_threshold_mps": 0.03,
+  "stop_consecutive_frames": 3,
+  "save_lerobot_state_only": true,
+  "render_or_save_video": false,
+  "output_root": "outputs/pushbox/matched_action_velocity_analysis/libero_plus_push_box_matched_A025_3object_3friction_state_only_lerobot_2026-07-19_hai-machine"
+}

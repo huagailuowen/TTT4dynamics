@@ -1,0 +1,5 @@
+assets: /home/yininghong/chenyuan/TTT-physics/repos/LIBERO-plus/libero/libero/assets
+bddl_files: /home/yininghong/chenyuan/TTT-physics/repos/LIBERO-plus/libero/libero/bddl_files
+benchmark_root: /home/yininghong/chenyuan/TTT-physics/repos/LIBERO-plus/libero/libero
+datasets: /home/yininghong/chenyuan/TTT-physics/repos/LIBERO-plus/libero/datasets
+init_states: /home/yininghong/chenyuan/TTT-physics/repos/LIBERO-plus/libero/libero/init_files

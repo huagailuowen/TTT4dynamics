@@ -1,0 +1,932 @@
+{
+  "experiment": "Matched A=0.25 and four-drive-frame angle-effect analysis for Butter Box and White Bowl",
+  "source_formal_config": "configs/libero_push_box_board_touch_20fric_30action_fixed5cm_A050_2026-07-17_hai-machine.json",
+  "target_visible": false,
+  "split": "box_bowl_matched_A025_fixed4_angle_analysis",
+  "camera_resolution": 224,
+  "fps": 20,
+  "friction_schedule": {
+    "description": "fric80 density ratio scaled to 25 groups",
+    "segments": [
+      {
+        "start": 0.002,
+        "stop": 0.05,
+        "count": 9,
+        "endpoint": false
+      },
+      {
+        "start": 0.05,
+        "stop": 0.15,
+        "count": 13,
+        "endpoint": false
+      },
+      {
+        "start": 0.15,
+        "stop": 0.2,
+        "count": 3,
+        "endpoint": true
+      }
+    ]
+  },
+  "actions": [
+    {
+      "action_id": 0,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.05,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 1,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.1,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 2,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.15,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 3,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.2,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 4,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0,
+      "matched_action_note": "Same peak command A=0.25 for angle isolation"
+    },
+    {
+      "action_id": 5,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.3,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 6,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.4,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 7,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.45,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 8,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.5,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 9,
+      "kind": "diagonal",
+      "angle_deg": 30.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0,
+      "matched_action_note": "Same peak command A=0.25 for angle isolation"
+    },
+    {
+      "action_id": 10,
+      "kind": "diagonal",
+      "angle_deg": -30.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0,
+      "matched_action_note": "Same peak command A=0.25 for angle isolation"
+    },
+    {
+      "action_id": 11,
+      "kind": "diagonal",
+      "angle_deg": 60.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0,
+      "matched_action_note": "Same peak command A=0.25 for angle isolation"
+    },
+    {
+      "action_id": 12,
+      "kind": "diagonal",
+      "angle_deg": -60.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0,
+      "matched_action_note": "Same peak command A=0.25 for angle isolation"
+    },
+    {
+      "action_id": 13,
+      "kind": "lateral",
+      "angle_deg": 90.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0,
+      "matched_action_note": "Same peak command A=0.25 for angle isolation"
+    },
+    {
+      "action_id": 14,
+      "kind": "lateral",
+      "angle_deg": -90.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0,
+      "matched_action_note": "Same peak command A=0.25 for angle isolation"
+    },
+    {
+      "action_id": 15,
+      "kind": "backward_diagonal",
+      "angle_deg": 135.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0,
+      "matched_action_note": "Same peak command A=0.25 for angle isolation"
+    },
+    {
+      "action_id": 16,
+      "kind": "backward_diagonal",
+      "angle_deg": -135.0,
+      "A": 0.38,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 17,
+      "kind": "reverse",
+      "angle_deg": 180.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0,
+      "matched_action_note": "Same peak command A=0.25 for angle isolation"
+    },
+    {
+      "action_id": 18,
+      "kind": "reverse",
+      "angle_deg": 180.0,
+      "A": 0.45,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 19,
+      "kind": "glancing",
+      "angle_deg": 15.0,
+      "A": 0.3,
+      "contact_lateral_offset_m": 0.01
+    }
+  ],
+  "object_variants": [
+    {
+      "object_id": 0,
+      "name": "official_hope_butter",
+      "display_name": "Butter Box",
+      "bddl_type": "butter",
+      "asset_xml": "stable_hope_objects/butter/butter.xml",
+      "collision_model": "single box",
+      "collision_half_size_local_m": [
+        0.00871,
+        0.01977,
+        0.03809
+      ],
+      "approximate_table_footprint_m": [
+        0.03954,
+        0.07618
+      ],
+      "approximate_height_m": 0.01742,
+      "target_mass_kg": 0.008,
+      "initial_quat_wxyz": [
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "orientation_description": "box baseline standing broad-face-forward; lowered native-gripper contact to target mid-height",
+      "native_contact_eef_z_m": 0.932
+    },
+    {
+      "object_id": 2,
+      "name": "official_scanned_white_bowl",
+      "display_name": "White Bowl",
+      "bddl_type": "white_bowl",
+      "asset_xml": "stable_scanned_objects/white_bowl/white_bowl.xml",
+      "collision_model": "multi-box circular bowl approximation",
+      "collision_half_size_local_m": [
+        0.036,
+        0.036,
+        0.02
+      ],
+      "approximate_table_footprint_m": [
+        0.072,
+        0.072
+      ],
+      "approximate_height_m": 0.04,
+      "target_mass_kg": 0.008,
+      "initial_quat_wxyz": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "orientation_description": "upright low circular bowl",
+      "native_contact_eef_z_m": 0.932
+    }
+  ],
+  "initial_position": {
+    "front_back_x_jitter_m": [
+      -0.008,
+      0.008
+    ],
+    "horizontal_y_jitter_m": [
+      -0.1,
+      0.1
+    ],
+    "front_back_x_offset_cycle_m": [
+      -0.008,
+      0.006,
+      -0.004,
+      0.008,
+      0.0,
+      -0.006,
+      0.004,
+      -0.002,
+      0.007
+    ],
+    "horizontal_y_offset_cycle_m": [
+      -0.1,
+      -0.075,
+      -0.05,
+      -0.025,
+      0.0,
+      0.025,
+      0.05,
+      0.075,
+      0.1
+    ],
+    "description": "Front/back motion remains within 8 mm; left/right target placement spans 20 cm while retaining directional-action workspace margin."
+  },
+  "pusher": {
+    "tool": "native_panda_gripper",
+    "board_present": false,
+    "standoff_m": 0.008,
+    "approach_height_m": 0.1,
+    "approach_steps": 22,
+    "descend_steps": 26,
+    "alignment_steps": 16,
+    "touch_action": 0.08,
+    "touch_max_steps": 160,
+    "touch_max_travel_m": 0.06,
+    "contact_motion_threshold_m": 0.001,
+    "contact_speed_threshold_mps": 0.02,
+    "latch_search_step_m": 0.0001,
+    "latch_search_max_m": 0.012,
+    "gripper_command": 1.0
+  },
+  "controller": {
+    "first_frame_fraction": 0.7,
+    "target_projected_travel_m": 0.05,
+    "pusher_max_pos_action": 0.5,
+    "brake_trigger_lookahead_frames": 1.0,
+    "brake_gain_action_per_mps": 0.6,
+    "maximum_brake_frames": 3,
+    "stop_speed_mps": 0.03,
+    "perpendicular_hold_gain": 7.0,
+    "height_hold_gain": 7.0,
+    "hold_max_action": 0.12,
+    "recorded_steps": 80,
+    "stop_mode": "event_latched_zero",
+    "event_stop": {
+      "contact_motion_threshold_m": 0.001,
+      "contact_speed_threshold_mps": 0.03,
+      "trigger_velocity_ratio": 1000.0,
+      "minimum_contact_hold_frames": 0,
+      "maximum_contact_hold_frames": 3,
+      "after_mode": "latched_zero_without_reverse_brake"
+    }
+  },
+  "background_randomization": {
+    "mode": "libero_plus_official_rich_scene_col_albedo_only",
+    "minimum_object_table_rgb_distance": 0.25,
+    "presets": [
+      {
+        "preset_id": "plus_kitchen_classic_wood",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style.xml",
+        "floor_style": "tile_grigia_caldera",
+        "wall_style": "gray-plaster",
+        "table_texture_file": "textures/martin_novak_wood_table.png",
+        "table_rgb": [
+          0.63,
+          0.49,
+          0.35
+        ],
+        "lighting": {
+          "name": "neutral_daylight",
+          "diffuse_scale": 1,
+          "ambient_scale": 1,
+          "specular_scale": 1,
+          "diffuse_tint": [
+            1,
+            1,
+            1
+          ],
+          "ambient_tint": [
+            1,
+            1,
+            1
+          ],
+          "specular_tint": [
+            1,
+            1,
+            1
+          ],
+          "position_offset_m": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_brick",
+        "arena_xml": "scenes/kitchen_bg_Bricks02_COL_VAR1_6K.xml",
+        "floor_style": "brick-col",
+        "wall_style": "cream",
+        "table_texture_file": "textures/Bricks02_COL_VAR1_6K.png",
+        "table_rgb": [
+          0.48,
+          0.31,
+          0.24
+        ],
+        "lighting": {
+          "name": "bright_cool",
+          "diffuse_scale": 1.18,
+          "ambient_scale": 1.35,
+          "specular_scale": 0.9,
+          "diffuse_tint": [
+            0.92,
+            0.97,
+            1
+          ],
+          "ambient_tint": [
+            0.9,
+            0.96,
+            1
+          ],
+          "specular_tint": [
+            0.95,
+            0.98,
+            1
+          ],
+          "position_offset_m": [
+            0.2,
+            -0.1,
+            0.05
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_cliff",
+        "arena_xml": "scenes/kitchen_bg_CliffDesert006_COL_VAR1_HIRES.xml",
+        "floor_style": "cliffde-col",
+        "wall_style": "yellow-linen",
+        "table_texture_file": "textures/CliffDesert006_COL_VAR1_HIRES.png",
+        "table_rgb": [
+          0.52,
+          0.39,
+          0.29
+        ],
+        "lighting": {
+          "name": "soft_warm",
+          "diffuse_scale": 0.82,
+          "ambient_scale": 1.45,
+          "specular_scale": 0.65,
+          "diffuse_tint": [
+            1,
+            0.9,
+            0.78
+          ],
+          "ambient_tint": [
+            1,
+            0.92,
+            0.82
+          ],
+          "specular_tint": [
+            1,
+            0.92,
+            0.85
+          ],
+          "position_offset_m": [
+            -0.15,
+            0.1,
+            0
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_marble",
+        "arena_xml": "scenes/kitchen_bg_Marble01_COL_3K.xml",
+        "floor_style": "marble01-col",
+        "wall_style": "capriccio",
+        "table_texture_file": "textures/Marble01_COL_3K.png",
+        "table_rgb": [
+          0.72,
+          0.7,
+          0.68
+        ],
+        "lighting": {
+          "name": "high_contrast_side",
+          "diffuse_scale": 1.12,
+          "ambient_scale": 0.55,
+          "specular_scale": 1.15,
+          "diffuse_tint": [
+            0.96,
+            0.98,
+            1
+          ],
+          "ambient_tint": [
+            0.9,
+            0.94,
+            1
+          ],
+          "specular_tint": [
+            1,
+            1,
+            1
+          ],
+          "position_offset_m": [
+            0.4,
+            0.2,
+            0
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_tiles",
+        "arena_xml": "scenes/kitchen_bg_Tiles01_COL_VAR1_6K.xml",
+        "floor_style": "tile",
+        "wall_style": "brick-col",
+        "table_texture_file": "textures/Tiles01_COL_VAR1_6K.png",
+        "table_rgb": [
+          0.54,
+          0.49,
+          0.43
+        ],
+        "lighting": {
+          "name": "dim_cool",
+          "diffuse_scale": 0.58,
+          "ambient_scale": 0.72,
+          "specular_scale": 1.05,
+          "diffuse_tint": [
+            0.78,
+            0.88,
+            1
+          ],
+          "ambient_tint": [
+            0.8,
+            0.88,
+            1
+          ],
+          "specular_tint": [
+            0.9,
+            0.95,
+            1
+          ],
+          "position_offset_m": [
+            -0.25,
+            -0.15,
+            -0.05
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_wood",
+        "arena_xml": "scenes/kitchen_bg_WoodFine001_ALBEDO_6K.xml",
+        "floor_style": "woodfine01-a",
+        "wall_style": "cliffde-col",
+        "table_texture_file": "textures/WoodFine001_ALBEDO_6K.png",
+        "table_rgb": [
+          0.5,
+          0.33,
+          0.2
+        ],
+        "lighting": {
+          "name": "bright_diffuse",
+          "diffuse_scale": 1.22,
+          "ambient_scale": 1.6,
+          "specular_scale": 0.55,
+          "diffuse_tint": [
+            1,
+            0.98,
+            0.94
+          ],
+          "ambient_tint": [
+            1,
+            0.98,
+            0.94
+          ],
+          "specular_tint": [
+            1,
+            0.98,
+            0.95
+          ],
+          "position_offset_m": [
+            0,
+            0.25,
+            0.08
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_brick_cardboard",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style_bg_brick.xml",
+        "floor_style": "CardboardPlain001_ALBEDO_6K",
+        "wall_style": "marble01-col",
+        "table_texture_file": "textures/CardboardPlain001_ALBEDO_6K.png",
+        "table_rgb": [
+          0.61,
+          0.49,
+          0.35
+        ],
+        "lighting": {
+          "name": "warm_side",
+          "diffuse_scale": 0.94,
+          "ambient_scale": 0.9,
+          "specular_scale": 0.9,
+          "diffuse_tint": [
+            1,
+            0.84,
+            0.7
+          ],
+          "ambient_tint": [
+            1,
+            0.9,
+            0.8
+          ],
+          "specular_tint": [
+            1,
+            0.9,
+            0.82
+          ],
+          "position_offset_m": [
+            0.45,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_shadow_denim",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style_light_shadow.xml",
+        "floor_style": "FabricDenim003_COL_VAR1_HIRES",
+        "wall_style": "woodfine01-a",
+        "table_texture_file": "textures/FabricDenim003_COL_VAR1_HIRES.png",
+        "table_rgb": [
+          0.18,
+          0.29,
+          0.39
+        ],
+        "lighting": {
+          "name": "overcast",
+          "diffuse_scale": 0.72,
+          "ambient_scale": 1.55,
+          "specular_scale": 0.45,
+          "diffuse_tint": [
+            0.9,
+            0.95,
+            1
+          ],
+          "ambient_tint": [
+            0.92,
+            0.96,
+            1
+          ],
+          "specular_tint": [
+            0.95,
+            0.98,
+            1
+          ],
+          "position_offset_m": [
+            -0.1,
+            0.3,
+            0.12
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_table_marble",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style_table_marble.xml",
+        "floor_style": "marble01-col",
+        "wall_style": "brick-col",
+        "table_texture_file": "textures/Marble01_COL_3K.png",
+        "table_rgb": [
+          0.7,
+          0.68,
+          0.66
+        ],
+        "lighting": {
+          "name": "low_warm",
+          "diffuse_scale": 0.66,
+          "ambient_scale": 0.82,
+          "specular_scale": 0.8,
+          "diffuse_tint": [
+            1,
+            0.76,
+            0.58
+          ],
+          "ambient_tint": [
+            1,
+            0.84,
+            0.68
+          ],
+          "specular_tint": [
+            1,
+            0.86,
+            0.72
+          ],
+          "position_offset_m": [
+            -0.35,
+            0.15,
+            -0.1
+          ]
+        }
+      }
+    ],
+    "visible_texture_channels": [
+      "COL",
+      "ALBEDO",
+      "classic LIBERO diffuse"
+    ],
+    "lighting_control": "Per-preset runtime diffuse, ambient, specular, and light-position control"
+  },
+  "absolute_action": {
+    "schema": "absolute_eef_xyz_action_v1",
+    "names": [
+      "eef_target_x_m",
+      "eef_target_y_m",
+      "eef_target_z_m",
+      "dax",
+      "day",
+      "daz",
+      "gripper_open"
+    ],
+    "translation_scale_m_per_normalized_unit": 0.05
+  },
+  "recording": {
+    "format": "LeRobot",
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98
+  },
+  "quality_gates": {
+    "minimum_projected_eef_travel_m": 0.001,
+    "maximum_projected_eef_travel_m": 0.3,
+    "maximum_perpendicular_eef_travel_m": 0.05,
+    "maximum_board_normal_error_deg": 10.0,
+    "maximum_alignment_target_error_m": 0.02
+  },
+  "preview_cases": [
+    {
+      "action_id": 4,
+      "friction_mu": 0.08,
+      "object_id": 0,
+      "seed": 3400
+    },
+    {
+      "action_id": 9,
+      "friction_mu": 0.08,
+      "object_id": 0,
+      "seed": 3400
+    },
+    {
+      "action_id": 10,
+      "friction_mu": 0.08,
+      "object_id": 0,
+      "seed": 3400
+    },
+    {
+      "action_id": 11,
+      "friction_mu": 0.08,
+      "object_id": 0,
+      "seed": 3400
+    },
+    {
+      "action_id": 12,
+      "friction_mu": 0.08,
+      "object_id": 0,
+      "seed": 3400
+    },
+    {
+      "action_id": 13,
+      "friction_mu": 0.08,
+      "object_id": 0,
+      "seed": 3400
+    },
+    {
+      "action_id": 14,
+      "friction_mu": 0.08,
+      "object_id": 0,
+      "seed": 3400
+    },
+    {
+      "action_id": 15,
+      "friction_mu": 0.08,
+      "object_id": 0,
+      "seed": 3400
+    },
+    {
+      "action_id": 17,
+      "friction_mu": 0.08,
+      "object_id": 0,
+      "seed": 3400
+    },
+    {
+      "action_id": 4,
+      "friction_mu": 0.08,
+      "object_id": 2,
+      "seed": 3400
+    },
+    {
+      "action_id": 9,
+      "friction_mu": 0.08,
+      "object_id": 2,
+      "seed": 3400
+    },
+    {
+      "action_id": 10,
+      "friction_mu": 0.08,
+      "object_id": 2,
+      "seed": 3400
+    },
+    {
+      "action_id": 11,
+      "friction_mu": 0.08,
+      "object_id": 2,
+      "seed": 3400
+    },
+    {
+      "action_id": 12,
+      "friction_mu": 0.08,
+      "object_id": 2,
+      "seed": 3400
+    },
+    {
+      "action_id": 13,
+      "friction_mu": 0.08,
+      "object_id": 2,
+      "seed": 3400
+    },
+    {
+      "action_id": 14,
+      "friction_mu": 0.08,
+      "object_id": 2,
+      "seed": 3400
+    },
+    {
+      "action_id": 15,
+      "friction_mu": 0.08,
+      "object_id": 2,
+      "seed": 3400
+    },
+    {
+      "action_id": 17,
+      "friction_mu": 0.08,
+      "object_id": 2,
+      "seed": 3400
+    }
+  ],
+  "expected_preview_episode_count": 18,
+  "formal_episode_count_if_approved": null,
+  "trajectory_recording": {
+    "record_from_environment_reset": true,
+    "approach_max_action": 0.7,
+    "approach_gain": 10.0,
+    "descend_max_action": 0.55,
+    "descend_gain": 12.0,
+    "alignment_max_action": 0.25,
+    "alignment_gain": 12.0
+  },
+  "distractor_randomization": {
+    "enabled": false,
+    "count_cycle": [
+      0
+    ],
+    "asset_pool": [
+      {
+        "bddl_type": "white_bowl",
+        "display_name": "White Bowl"
+      },
+      {
+        "bddl_type": "akita_black_bowl",
+        "display_name": "Akita Black Bowl"
+      },
+      {
+        "bddl_type": "red_coffee_mug",
+        "display_name": "Red Coffee Mug"
+      },
+      {
+        "bddl_type": "porcelain_mug",
+        "display_name": "Porcelain Mug"
+      },
+      {
+        "bddl_type": "black_book",
+        "display_name": "Black Book"
+      },
+      {
+        "bddl_type": "yellow_book",
+        "display_name": "Yellow Book"
+      }
+    ],
+    "safe_anchor_xy_m": [
+      [
+        -0.18,
+        -0.3
+      ],
+      [
+        -0.18,
+        0.3
+      ],
+      [
+        0.08,
+        -0.3
+      ],
+      [
+        0.08,
+        0.3
+      ],
+      [
+        0.3,
+        -0.3
+      ],
+      [
+        0.3,
+        0.3
+      ]
+    ],
+    "region_half_extent_xy_m": [
+      0.008,
+      0.008
+    ],
+    "yaw_range_rad": [
+      -3.141593,
+      3.141593
+    ],
+    "push_corridor_exclusion_abs_y_m": 0.16,
+    "target_only_action_and_labels": true,
+    "description": "Disabled for controlled angle-effect analysis"
+  },
+  "preview_design": {
+    "targets": [
+      "Butter Box",
+      "White Bowl"
+    ],
+    "friction_mu": 0.08,
+    "action_ids": [
+      4,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      17
+    ],
+    "directions_deg": [
+      0.0,
+      30.0,
+      -30.0,
+      60.0,
+      -60.0,
+      90.0,
+      -90.0,
+      135.0,
+      180.0
+    ],
+    "board_present": false,
+    "background_clutter_count": "2-4 official LIBERO objects per episode"
+  },
+  "matched_action_design": {
+    "peak_action_A": 0.25,
+    "first_frame_fraction": 0.7,
+    "drive_frames": 4,
+    "friction_mu": 0.08,
+    "shared_seed": 3400,
+    "fixed_background": true,
+    "fixed_target_position": true,
+    "distractors_enabled": false,
+    "directions_deg": [
+      0.0,
+      30.0,
+      -30.0,
+      60.0,
+      -60.0,
+      90.0,
+      -90.0,
+      135.0,
+      180.0
+    ]
+  }
+}

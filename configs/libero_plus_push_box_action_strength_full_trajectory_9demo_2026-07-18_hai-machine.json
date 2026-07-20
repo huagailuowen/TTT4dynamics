@@ -1,0 +1,743 @@
+{
+  "experiment": "LIBERO-Plus official rich-scene native-gripper PushBox full trajectory: 9 straight action-strength levels",
+  "source_formal_config": "configs/libero_push_box_board_touch_20fric_30action_fixed5cm_A050_2026-07-17_hai-machine.json",
+  "target_visible": false,
+  "split": "straight_action_strength_full_trajectory",
+  "camera_resolution": 224,
+  "fps": 20,
+  "friction_schedule": {
+    "description": "fric80 density ratio scaled to 25 groups",
+    "segments": [
+      {
+        "start": 0.002,
+        "stop": 0.05,
+        "count": 9,
+        "endpoint": false
+      },
+      {
+        "start": 0.05,
+        "stop": 0.15,
+        "count": 13,
+        "endpoint": false
+      },
+      {
+        "start": 0.15,
+        "stop": 0.2,
+        "count": 3,
+        "endpoint": true
+      }
+    ]
+  },
+  "actions": [
+    {
+      "action_id": 0,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.05,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 1,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.10,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 2,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.15,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 3,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.20,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 4,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 5,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.30,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 6,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.40,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 7,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.45,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 8,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.50,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 9,
+      "kind": "diagonal",
+      "angle_deg": 30.0,
+      "A": 0.18,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 10,
+      "kind": "diagonal",
+      "angle_deg": -30.0,
+      "A": 0.32,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 11,
+      "kind": "diagonal",
+      "angle_deg": 60.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 12,
+      "kind": "diagonal",
+      "angle_deg": -60.0,
+      "A": 0.38,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 13,
+      "kind": "lateral",
+      "angle_deg": 90.0,
+      "A": 0.30,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 14,
+      "kind": "lateral",
+      "angle_deg": -90.0,
+      "A": 0.30,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 15,
+      "kind": "backward_diagonal",
+      "angle_deg": 135.0,
+      "A": 0.22,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 16,
+      "kind": "backward_diagonal",
+      "angle_deg": -135.0,
+      "A": 0.38,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 17,
+      "kind": "reverse",
+      "angle_deg": 180.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 18,
+      "kind": "reverse",
+      "angle_deg": 180.0,
+      "A": 0.45,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 19,
+      "kind": "glancing",
+      "angle_deg": 15.0,
+      "A": 0.30,
+      "contact_lateral_offset_m": 0.010
+    }
+  ],
+  "object_variants": [
+    {
+      "object_id": 0,
+      "name": "official_hope_butter",
+      "display_name": "Butter Box",
+      "bddl_type": "butter",
+      "asset_xml": "stable_hope_objects/butter/butter.xml",
+      "collision_model": "single box",
+      "collision_half_size_local_m": [
+        0.00871,
+        0.01977,
+        0.03809
+      ],
+      "approximate_table_footprint_m": [
+        0.03954,
+        0.07618
+      ],
+      "approximate_height_m": 0.01742,
+      "target_mass_kg": 0.008,
+      "initial_quat_wxyz": [
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "orientation_description": "official mesh standing broad-face-forward; long footprint axis lateral to push",
+      "native_contact_eef_z_m": 0.949
+    },
+    {
+      "object_id": 1,
+      "name": "official_hope_cream_cheese",
+      "display_name": "Cream Cheese Box",
+      "bddl_type": "cream_cheese",
+      "asset_xml": "stable_hope_objects/cream_cheese/cream_cheese.xml",
+      "collision_model": "single box",
+      "collision_half_size_local_m": [
+        0.008936,
+        0.021336,
+        0.040608
+      ],
+      "approximate_table_footprint_m": [
+        0.042672,
+        0.081216
+      ],
+      "approximate_height_m": 0.017872,
+      "target_mass_kg": 0.008,
+      "initial_quat_wxyz": [
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "orientation_description": "official mesh standing broad-face-forward; long footprint axis lateral to push",
+      "native_contact_eef_z_m": 0.949
+    },
+    {
+      "object_id": 2,
+      "name": "official_hope_chocolate_pudding",
+      "display_name": "Chocolate Pudding Box",
+      "bddl_type": "chocolate_pudding",
+      "asset_xml": "stable_hope_objects/chocolate_pudding/chocolate_pudding.xml",
+      "collision_model": "single box",
+      "collision_half_size_local_m": [
+        0.01371,
+        0.02316,
+        0.04010
+      ],
+      "approximate_table_footprint_m": [
+        0.04632,
+        0.08020
+      ],
+      "approximate_height_m": 0.02742,
+      "target_mass_kg": 0.008,
+      "initial_quat_wxyz": [
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "orientation_description": "official mesh standing broad-face-forward; long footprint axis lateral to push",
+      "native_contact_eef_z_m": 0.949
+    }
+  ],
+  "initial_position": {
+    "front_back_x_jitter_m": [
+      -0.012,
+      0.012
+    ],
+    "horizontal_y_jitter_m": [
+      -0.080,
+      0.080
+    ]
+  },
+  "pusher": {
+    "tool": "native_panda_gripper",
+    "board_present": false,
+    "standoff_m": 0.008,
+    "approach_height_m": 0.10,
+    "approach_steps": 22,
+    "descend_steps": 26,
+    "alignment_steps": 16,
+    "touch_action": 0.08,
+    "touch_max_steps": 100,
+    "touch_max_travel_m": 0.035,
+    "contact_motion_threshold_m": 0.001,
+    "contact_speed_threshold_mps": 0.02,
+    "latch_search_step_m": 0.0001,
+    "latch_search_max_m": 0.012,
+    "gripper_command": 1.0
+  },
+  "controller": {
+    "first_frame_fraction": 0.7,
+    "target_projected_travel_m": 0.05,
+    "pusher_max_pos_action": 0.5,
+    "brake_trigger_lookahead_frames": 1.0,
+    "brake_gain_action_per_mps": 0.6,
+    "maximum_brake_frames": 3,
+    "stop_speed_mps": 0.03,
+    "perpendicular_hold_gain": 7.0,
+    "height_hold_gain": 7.0,
+    "hold_max_action": 0.12,
+    "recorded_steps": 80
+  },
+  "background_randomization": {
+    "mode": "libero_plus_official_rich_scene_col_albedo_only",
+    "minimum_object_table_rgb_distance": 0.25,
+    "presets": [
+      {
+        "preset_id": "plus_kitchen_classic_wood",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style.xml",
+        "floor_style": "tile_grigia_caldera",
+        "wall_style": "gray-plaster",
+        "table_texture_file": "textures/martin_novak_wood_table.png",
+        "table_rgb": [
+          0.63,
+          0.49,
+          0.35
+        ],
+        "lighting": {
+          "name": "neutral_daylight",
+          "diffuse_scale": 1,
+          "ambient_scale": 1,
+          "specular_scale": 1,
+          "diffuse_tint": [
+            1,
+            1,
+            1
+          ],
+          "ambient_tint": [
+            1,
+            1,
+            1
+          ],
+          "specular_tint": [
+            1,
+            1,
+            1
+          ],
+          "position_offset_m": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_brick",
+        "arena_xml": "scenes/kitchen_bg_Bricks02_COL_VAR1_6K.xml",
+        "floor_style": "brick-col",
+        "wall_style": "cream",
+        "table_texture_file": "textures/Bricks02_COL_VAR1_6K.png",
+        "table_rgb": [
+          0.48,
+          0.31,
+          0.24
+        ],
+        "lighting": {
+          "name": "bright_cool",
+          "diffuse_scale": 1.18,
+          "ambient_scale": 1.35,
+          "specular_scale": 0.9,
+          "diffuse_tint": [
+            0.92,
+            0.97,
+            1
+          ],
+          "ambient_tint": [
+            0.9,
+            0.96,
+            1
+          ],
+          "specular_tint": [
+            0.95,
+            0.98,
+            1
+          ],
+          "position_offset_m": [
+            0.2,
+            -0.1,
+            0.05
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_cliff",
+        "arena_xml": "scenes/kitchen_bg_CliffDesert006_COL_VAR1_HIRES.xml",
+        "floor_style": "cliffde-col",
+        "wall_style": "yellow-linen",
+        "table_texture_file": "textures/CliffDesert006_COL_VAR1_HIRES.png",
+        "table_rgb": [
+          0.52,
+          0.39,
+          0.29
+        ],
+        "lighting": {
+          "name": "soft_warm",
+          "diffuse_scale": 0.82,
+          "ambient_scale": 1.45,
+          "specular_scale": 0.65,
+          "diffuse_tint": [
+            1,
+            0.9,
+            0.78
+          ],
+          "ambient_tint": [
+            1,
+            0.92,
+            0.82
+          ],
+          "specular_tint": [
+            1,
+            0.92,
+            0.85
+          ],
+          "position_offset_m": [
+            -0.15,
+            0.1,
+            0
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_marble",
+        "arena_xml": "scenes/kitchen_bg_Marble01_COL_3K.xml",
+        "floor_style": "marble01-col",
+        "wall_style": "capriccio",
+        "table_texture_file": "textures/Marble01_COL_3K.png",
+        "table_rgb": [
+          0.72,
+          0.70,
+          0.68
+        ],
+        "lighting": {
+          "name": "high_contrast_side",
+          "diffuse_scale": 1.12,
+          "ambient_scale": 0.55,
+          "specular_scale": 1.15,
+          "diffuse_tint": [
+            0.96,
+            0.98,
+            1
+          ],
+          "ambient_tint": [
+            0.9,
+            0.94,
+            1
+          ],
+          "specular_tint": [
+            1,
+            1,
+            1
+          ],
+          "position_offset_m": [
+            0.4,
+            0.2,
+            0
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_tiles",
+        "arena_xml": "scenes/kitchen_bg_Tiles01_COL_VAR1_6K.xml",
+        "floor_style": "tile",
+        "wall_style": "brick-col",
+        "table_texture_file": "textures/Tiles01_COL_VAR1_6K.png",
+        "table_rgb": [
+          0.54,
+          0.49,
+          0.43
+        ],
+        "lighting": {
+          "name": "dim_cool",
+          "diffuse_scale": 0.58,
+          "ambient_scale": 0.72,
+          "specular_scale": 1.05,
+          "diffuse_tint": [
+            0.78,
+            0.88,
+            1
+          ],
+          "ambient_tint": [
+            0.8,
+            0.88,
+            1
+          ],
+          "specular_tint": [
+            0.9,
+            0.95,
+            1
+          ],
+          "position_offset_m": [
+            -0.25,
+            -0.15,
+            -0.05
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_wood",
+        "arena_xml": "scenes/kitchen_bg_WoodFine001_ALBEDO_6K.xml",
+        "floor_style": "woodfine01-a",
+        "wall_style": "cliffde-col",
+        "table_texture_file": "textures/WoodFine001_ALBEDO_6K.png",
+        "table_rgb": [
+          0.50,
+          0.33,
+          0.20
+        ],
+        "lighting": {
+          "name": "bright_diffuse",
+          "diffuse_scale": 1.22,
+          "ambient_scale": 1.6,
+          "specular_scale": 0.55,
+          "diffuse_tint": [
+            1,
+            0.98,
+            0.94
+          ],
+          "ambient_tint": [
+            1,
+            0.98,
+            0.94
+          ],
+          "specular_tint": [
+            1,
+            0.98,
+            0.95
+          ],
+          "position_offset_m": [
+            0,
+            0.25,
+            0.08
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_brick_cardboard",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style_bg_brick.xml",
+        "floor_style": "CardboardPlain001_ALBEDO_6K",
+        "wall_style": "marble01-col",
+        "table_texture_file": "textures/CardboardPlain001_ALBEDO_6K.png",
+        "table_rgb": [
+          0.61,
+          0.49,
+          0.35
+        ],
+        "lighting": {
+          "name": "warm_side",
+          "diffuse_scale": 0.94,
+          "ambient_scale": 0.9,
+          "specular_scale": 0.9,
+          "diffuse_tint": [
+            1,
+            0.84,
+            0.7
+          ],
+          "ambient_tint": [
+            1,
+            0.9,
+            0.8
+          ],
+          "specular_tint": [
+            1,
+            0.9,
+            0.82
+          ],
+          "position_offset_m": [
+            0.45,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_shadow_denim",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style_light_shadow.xml",
+        "floor_style": "FabricDenim003_COL_VAR1_HIRES",
+        "wall_style": "woodfine01-a",
+        "table_texture_file": "textures/FabricDenim003_COL_VAR1_HIRES.png",
+        "table_rgb": [
+          0.18,
+          0.29,
+          0.39
+        ],
+        "lighting": {
+          "name": "overcast",
+          "diffuse_scale": 0.72,
+          "ambient_scale": 1.55,
+          "specular_scale": 0.45,
+          "diffuse_tint": [
+            0.9,
+            0.95,
+            1
+          ],
+          "ambient_tint": [
+            0.92,
+            0.96,
+            1
+          ],
+          "specular_tint": [
+            0.95,
+            0.98,
+            1
+          ],
+          "position_offset_m": [
+            -0.1,
+            0.3,
+            0.12
+          ]
+        }
+      },
+      {
+        "preset_id": "plus_kitchen_table_marble",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style_table_marble.xml",
+        "floor_style": "marble01-col",
+        "wall_style": "brick-col",
+        "table_texture_file": "textures/Marble01_COL_3K.png",
+        "table_rgb": [
+          0.70,
+          0.68,
+          0.66
+        ],
+        "lighting": {
+          "name": "low_warm",
+          "diffuse_scale": 0.66,
+          "ambient_scale": 0.82,
+          "specular_scale": 0.8,
+          "diffuse_tint": [
+            1,
+            0.76,
+            0.58
+          ],
+          "ambient_tint": [
+            1,
+            0.84,
+            0.68
+          ],
+          "specular_tint": [
+            1,
+            0.86,
+            0.72
+          ],
+          "position_offset_m": [
+            -0.35,
+            0.15,
+            -0.1
+          ]
+        }
+      }
+    ],
+    "visible_texture_channels": [
+      "COL",
+      "ALBEDO",
+      "classic LIBERO diffuse"
+    ],
+    "lighting_control": "Per-preset runtime diffuse, ambient, specular, and light-position control"
+  },
+  "absolute_action": {
+    "schema": "absolute_eef_xyz_action_v1",
+    "names": [
+      "eef_target_x_m",
+      "eef_target_y_m",
+      "eef_target_z_m",
+      "dax",
+      "day",
+      "daz",
+      "gripper_open"
+    ],
+    "translation_scale_m_per_normalized_unit": 0.05
+  },
+  "recording": {
+    "format": "LeRobot",
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98
+  },
+  "quality_gates": {
+    "minimum_projected_eef_travel_m": 0.035,
+    "maximum_projected_eef_travel_m": 0.08,
+    "maximum_perpendicular_eef_travel_m": 0.012,
+    "maximum_board_normal_error_deg": 3.0,
+    "maximum_alignment_target_error_m": 0.006
+  },
+  "preview_cases": [
+    {
+      "action_id": 0,
+      "friction_mu": 0.05,
+      "object_id": 1,
+      "seed": 3600
+    },
+    {
+      "action_id": 1,
+      "friction_mu": 0.05,
+      "object_id": 1,
+      "seed": 3600
+    },
+    {
+      "action_id": 2,
+      "friction_mu": 0.05,
+      "object_id": 1,
+      "seed": 3600
+    },
+    {
+      "action_id": 3,
+      "friction_mu": 0.05,
+      "object_id": 1,
+      "seed": 3600
+    },
+    {
+      "action_id": 4,
+      "friction_mu": 0.05,
+      "object_id": 1,
+      "seed": 3600
+    },
+    {
+      "action_id": 5,
+      "friction_mu": 0.05,
+      "object_id": 1,
+      "seed": 3600
+    },
+    {
+      "action_id": 6,
+      "friction_mu": 0.05,
+      "object_id": 1,
+      "seed": 3600
+    },
+    {
+      "action_id": 7,
+      "friction_mu": 0.05,
+      "object_id": 1,
+      "seed": 3600
+    },
+    {
+      "action_id": 8,
+      "friction_mu": 0.05,
+      "object_id": 1,
+      "seed": 3600
+    }
+  ],
+  "expected_preview_episode_count": 9,
+  "formal_episode_count_if_approved": 500,
+  "trajectory_recording": {
+    "record_from_environment_reset": true,
+    "approach_max_action": 0.70,
+    "approach_gain": 10.0,
+    "descend_max_action": 0.55,
+    "descend_gain": 12.0,
+    "alignment_max_action": 0.25,
+    "alignment_gain": 12.0
+  }
+}
