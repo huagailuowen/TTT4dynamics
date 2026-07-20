@@ -1,0 +1,25 @@
+{
+  "experiment": "strict-touch rigid-board fixed EEF travel probe",
+  "frictions": [0.002, 0.1, 0.2],
+  "amplitudes": [0.02, 0.08, 0.16, 0.25, 0.35, 0.45],
+  "travel_lengths_m": [0.03, 0.05, 0.08],
+  "recorded_steps": 80,
+  "fps": 20,
+  "camera_resolution": 224,
+  "controller": {
+    "type": "speed-limited EEF x endpoint servo",
+    "position_gain_action_per_m": 12.0,
+    "velocity_damping_action_per_mps": 0.2,
+    "action_limit": "plus_or_minus_A",
+    "target_tolerance_m": 0.001,
+    "description": "A controls the maximum command and the endpoint is fixed by travel length"
+  },
+  "recording": {
+    "format": "LeRobot",
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98,
+    "touch_preparation_recorded": false
+  },
+  "expected_episode_count": 54
+}

@@ -1,0 +1,80 @@
+{
+  "dataset_name": "libero_push_box_board_touch_20fric_30action_full8_A450_hidden_lerobot_2026-07-17-hai-machine",
+  "source_base_config": "configs/libero_push_box_70fric_9action_fixed_scene_highforce_2026-07-02_hai-machine.json",
+  "target_visible": false,
+  "split": "straight",
+  "camera_resolution": 224,
+  "fps": 20,
+  "friction_schedule": {
+    "description": "segmented density following the fric80 design",
+    "segments": [
+      {
+        "start": 0.002,
+        "stop": 0.05,
+        "count": 7,
+        "endpoint": false
+      },
+      {
+        "start": 0.05,
+        "stop": 0.15,
+        "count": 10,
+        "endpoint": false
+      },
+      {
+        "start": 0.15,
+        "stop": 0.2,
+        "count": 3,
+        "endpoint": true
+      }
+    ]
+  },
+  "action_schedule": {
+    "description": "30 linearly spaced peak actions through the tested stable 8-frame maximum",
+    "minimum_A": 0.02,
+    "maximum_A": 0.45,
+    "count": 30,
+    "endpoint": true
+  },
+  "action_template": {
+    "full_speed_frames": 8,
+    "normalized_profile": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.5,
+      0.0
+    ],
+    "post_launch_recording_frames": 80,
+    "controller_push_phase_steps": 16,
+    "description": "strict touch start; full A from the first recorded frame; fixed release with no event trigger"
+  },
+  "touch_preparation": {
+    "recorded": false,
+    "maximum_steps": 200,
+    "target_gap_m": 0.0003,
+    "require_sampled_board_box_contact": true,
+    "description": "approach and gentle contact happen before episode recording"
+  },
+  "board": {
+    "position_eef_m": [0.0, 0.047, 0.003],
+    "quaternion_eef_wxyz": [0.999589, -0.028649, 0.0, 0.0],
+    "half_size_m": [0.05, 0.004, 0.008],
+    "mass_kg": 0.08,
+    "initial_gripper_state": "closed around rigid visual handle at reset",
+    "collision_policy": "board collides with cream-cheese box only"
+  },
+  "recording": {
+    "format": "LeRobot",
+    "use_videos": true,
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98,
+    "observation_action_alignment": "pre-step observation paired with the action applied to obtain the next state"
+  },
+  "expected_episode_count": 600
+}

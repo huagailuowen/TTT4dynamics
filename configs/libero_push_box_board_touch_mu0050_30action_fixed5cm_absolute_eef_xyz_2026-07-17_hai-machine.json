@@ -1,0 +1,41 @@
+{
+  "dataset_name": "libero_push_box_board_touch_mu0050_30action_fixed5cm_absolute_eef_xyz_lerobot_2026-07-17-hai-machine",
+  "source_formal_config": "configs/libero_push_box_board_touch_20fric_30action_fixed5cm_A050_2026-07-17_hai-machine.json",
+  "friction_mu": 0.05,
+  "action_selection": {
+    "description": "all 30 action amplitudes from the source formal grid",
+    "minimum_A": 0.05,
+    "maximum_A": 0.5,
+    "count": 30
+  },
+  "target_visible": false,
+  "split": "straight",
+  "camera_resolution": 224,
+  "fps": 20,
+  "absolute_action": {
+    "schema": "absolute_eef_xyz_action_v1",
+    "names": [
+      "eef_target_x_m",
+      "eef_target_y_m",
+      "eef_target_z_m",
+      "dax",
+      "day",
+      "daz",
+      "gripper_open"
+    ],
+    "translation_formula": "eef_target_xyz_m = observation_eef_xyz_m + 0.05 * normalized_dxyz",
+    "translation_scale_m_per_normalized_unit": 0.05,
+    "orientation_semantics": "relative axis-angle command unchanged",
+    "gripper_semantics": "gripper_open unchanged",
+    "terminal_frame_semantics": "zero relative command maps to current observed EEF XYZ"
+  },
+  "recording": {
+    "format": "LeRobot",
+    "use_videos": true,
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98,
+    "observation_action_alignment": "pre-step observation paired with the action applied to obtain the next state"
+  },
+  "expected_episode_count": 30
+}

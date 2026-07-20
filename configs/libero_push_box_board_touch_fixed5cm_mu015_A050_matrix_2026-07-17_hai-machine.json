@@ -1,0 +1,27 @@
+{
+  "experiment": "fixed 5 cm board-touch action-friction matrix below A 0.5",
+  "frictions": [0.002, 0.01, 0.02, 0.05, 0.075, 0.1, 0.125, 0.15],
+  "peak_amplitudes": [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5],
+  "first_frame_fraction": 0.7,
+  "travel_m": 0.05,
+  "pusher_max_pos_action": 0.5,
+  "recorded_steps": 80,
+  "fps": 20,
+  "camera_resolution": 224,
+  "controller": {
+    "drive": "first_frame_fraction_times_A_then_A",
+    "brake_trigger_lookahead_frames": 1.0,
+    "brake_gain_action_per_mps": 0.6,
+    "maximum_brake_frames": 3,
+    "stop_speed_mps": 0.03,
+    "after_brake": "latch_zero_without_reacceleration"
+  },
+  "recording": {
+    "format": "LeRobot",
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98,
+    "touch_preparation_recorded": false
+  },
+  "expected_episode_count": 80
+}

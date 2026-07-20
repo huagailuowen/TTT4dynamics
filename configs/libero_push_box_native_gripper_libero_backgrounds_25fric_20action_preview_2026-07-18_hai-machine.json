@@ -1,0 +1,439 @@
+{
+  "experiment": "LIBERO PushBox native-gripper / native-background 25-friction x 20-action preview",
+  "source_formal_config": "configs/libero_push_box_board_touch_20fric_30action_fixed5cm_A050_2026-07-17_hai-machine.json",
+  "target_visible": false,
+  "split": "straight",
+  "camera_resolution": 224,
+  "fps": 20,
+  "friction_schedule": {
+    "description": "fric80 density ratio scaled to 25 groups",
+    "segments": [
+      {
+        "start": 0.002,
+        "stop": 0.05,
+        "count": 9,
+        "endpoint": false
+      },
+      {
+        "start": 0.05,
+        "stop": 0.15,
+        "count": 13,
+        "endpoint": false
+      },
+      {
+        "start": 0.15,
+        "stop": 0.2,
+        "count": 3,
+        "endpoint": true
+      }
+    ]
+  },
+  "actions": [
+    {
+      "action_id": 0,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.05,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 1,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.10,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 2,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.15,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 3,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.20,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 4,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 5,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.30,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 6,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.40,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 7,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.45,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 8,
+      "kind": "straight",
+      "angle_deg": 0.0,
+      "A": 0.50,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 9,
+      "kind": "diagonal",
+      "angle_deg": 30.0,
+      "A": 0.18,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 10,
+      "kind": "diagonal",
+      "angle_deg": -30.0,
+      "A": 0.32,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 11,
+      "kind": "diagonal",
+      "angle_deg": 60.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 12,
+      "kind": "diagonal",
+      "angle_deg": -60.0,
+      "A": 0.38,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 13,
+      "kind": "lateral",
+      "angle_deg": 90.0,
+      "A": 0.30,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 14,
+      "kind": "lateral",
+      "angle_deg": -90.0,
+      "A": 0.30,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 15,
+      "kind": "backward_diagonal",
+      "angle_deg": 135.0,
+      "A": 0.22,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 16,
+      "kind": "backward_diagonal",
+      "angle_deg": -135.0,
+      "A": 0.38,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 17,
+      "kind": "reverse",
+      "angle_deg": 180.0,
+      "A": 0.25,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 18,
+      "kind": "reverse",
+      "angle_deg": 180.0,
+      "A": 0.45,
+      "contact_lateral_offset_m": 0.0
+    },
+    {
+      "action_id": 19,
+      "kind": "glancing",
+      "angle_deg": 15.0,
+      "A": 0.30,
+      "contact_lateral_offset_m": 0.010
+    }
+  ],
+  "object_variants": [
+    {
+      "object_id": 0,
+      "name": "standard_box",
+      "collision_half_size_local_m": [
+        0.0088,
+        0.0210,
+        0.0400
+      ]
+    },
+    {
+      "object_id": 1,
+      "name": "wide_box",
+      "collision_half_size_local_m": [
+        0.0088,
+        0.0210,
+        0.0320
+      ]
+    },
+    {
+      "object_id": 2,
+      "name": "slim_box",
+      "collision_half_size_local_m": [
+        0.0088,
+        0.0150,
+        0.0400
+      ]
+    }
+  ],
+  "initial_position": {
+    "front_back_x_jitter_m": [
+      -0.012,
+      0.012
+    ],
+    "horizontal_y_jitter_m": [
+      -0.080,
+      0.080
+    ]
+  },
+  "pusher": {
+    "tool": "native_panda_gripper",
+    "board_present": false,
+    "standoff_m": 0.008,
+    "approach_height_m": 0.10,
+    "approach_steps": 38,
+    "descend_steps": 75,
+    "alignment_steps": 25,
+    "touch_action": 0.08,
+    "touch_max_steps": 100,
+    "touch_max_travel_m": 0.035,
+    "contact_motion_threshold_m": 0.0001,
+    "contact_speed_threshold_mps": 0.002,
+    "latch_search_step_m": 0.0001,
+    "latch_search_max_m": 0.005,
+    "gripper_command": 1.0
+  },
+  "controller": {
+    "first_frame_fraction": 0.7,
+    "target_projected_travel_m": 0.05,
+    "pusher_max_pos_action": 0.5,
+    "brake_trigger_lookahead_frames": 1.0,
+    "brake_gain_action_per_mps": 0.6,
+    "maximum_brake_frames": 3,
+    "stop_speed_mps": 0.03,
+    "perpendicular_hold_gain": 7.0,
+    "height_hold_gain": 7.0,
+    "hold_max_action": 0.12,
+    "recorded_steps": 80
+  },
+  "background_randomization": {
+    "mode": "libero_native_texture_presets",
+    "minimum_object_table_rgb_distance": 0.25,
+    "presets": [
+      {
+        "preset_id": "tabletop_base",
+        "arena_xml": "scenes/libero_tabletop_base_style.xml",
+        "floor_style": "tile_grigia_caldera",
+        "wall_style": "light-gray-plaster",
+        "table_texture_file": "martin_novak_wood_table.png",
+        "table_rgb": [
+          0.776,
+          0.706,
+          0.635
+        ]
+      },
+      {
+        "preset_id": "tabletop_blue",
+        "arena_xml": "scenes/libero_tabletop_blue_style.xml",
+        "floor_style": "white-marble",
+        "wall_style": "light-blue",
+        "table_texture_file": "ceramic.png",
+        "table_rgb": [
+          0.976,
+          0.973,
+          0.957
+        ]
+      },
+      {
+        "preset_id": "tabletop_warm",
+        "arena_xml": "scenes/libero_tabletop_warm_style.xml",
+        "floor_style": "wood-plank",
+        "wall_style": "yellow-linen",
+        "table_texture_file": "seamless_wood_planks_floor.png",
+        "table_rgb": [
+          0.914,
+          0.784,
+          0.537
+        ]
+      },
+      {
+        "preset_id": "rustic_gray",
+        "arena_xml": "scenes/libero_tabletop_base_style.xml",
+        "floor_style": "rustic",
+        "wall_style": "gray-plaster",
+        "table_texture_file": "rustic_floor.png",
+        "table_rgb": [
+          0.639,
+          0.639,
+          0.631
+        ]
+      },
+      {
+        "preset_id": "dark_blue",
+        "arena_xml": "scenes/libero_tabletop_blue_style.xml",
+        "floor_style": "dark",
+        "wall_style": "dark-blue",
+        "table_texture_file": "kona_gotham.png",
+        "table_rgb": [
+          0.012,
+          0.373,
+          0.624
+        ]
+      },
+      {
+        "preset_id": "ceramic",
+        "arena_xml": "scenes/libero_tabletop_warm_style.xml",
+        "floor_style": "gray-ceramic",
+        "wall_style": "ceramic",
+        "table_texture_file": "gray_ceramic_tile.png",
+        "table_rgb": [
+          0.733,
+          0.671,
+          0.620
+        ]
+      },
+      {
+        "preset_id": "green_brown",
+        "arena_xml": "scenes/libero_tabletop_base_style.xml",
+        "floor_style": "brown-ceramic",
+        "wall_style": "dark-green",
+        "table_texture_file": "brown_ceramic_tile.png",
+        "table_rgb": [
+          0.698,
+          0.592,
+          0.514
+        ]
+      },
+      {
+        "preset_id": "bright_white",
+        "arena_xml": "scenes/libero_tabletop_blue_style.xml",
+        "floor_style": "white-marble",
+        "wall_style": "white",
+        "table_texture_file": "white_marble_floor.png",
+        "table_rgb": [
+          0.929,
+          0.906,
+          0.929
+        ]
+      },
+      {
+        "preset_id": "light_darkgray",
+        "arena_xml": "scenes/libero_tabletop_warm_style.xml",
+        "floor_style": "light-gray",
+        "wall_style": "dark-gray-plaster",
+        "table_texture_file": "dark_floor_texture.png",
+        "table_rgb": [
+          0.227,
+          0.208,
+          0.188
+        ]
+      }
+    ]
+  },
+  "absolute_action": {
+    "schema": "absolute_eef_xyz_action_v1",
+    "names": [
+      "eef_target_x_m",
+      "eef_target_y_m",
+      "eef_target_z_m",
+      "dax",
+      "day",
+      "daz",
+      "gripper_open"
+    ],
+    "translation_scale_m_per_normalized_unit": 0.05
+  },
+  "recording": {
+    "format": "LeRobot",
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98
+  },
+  "quality_gates": {
+    "minimum_projected_eef_travel_m": 0.04,
+    "maximum_projected_eef_travel_m": 0.070,
+    "maximum_perpendicular_eef_travel_m": 0.012,
+    "maximum_board_normal_error_deg": 3.0
+  },
+  "preview_cases": [
+    {
+      "action_id": 0,
+      "friction_mu": 0.02,
+      "object_id": 0,
+      "seed": 1800
+    },
+    {
+      "action_id": 4,
+      "friction_mu": 0.08,
+      "object_id": 1,
+      "seed": 1801
+    },
+    {
+      "action_id": 8,
+      "friction_mu": 0.15,
+      "object_id": 2,
+      "seed": 1802
+    },
+    {
+      "action_id": 9,
+      "friction_mu": 0.05,
+      "object_id": 0,
+      "seed": 1803
+    },
+    {
+      "action_id": 11,
+      "friction_mu": 0.10,
+      "object_id": 1,
+      "seed": 1804
+    },
+    {
+      "action_id": 13,
+      "friction_mu": 0.05,
+      "object_id": 2,
+      "seed": 1805
+    },
+    {
+      "action_id": 14,
+      "friction_mu": 0.15,
+      "object_id": 0,
+      "seed": 1806
+    },
+    {
+      "action_id": 15,
+      "friction_mu": 0.08,
+      "object_id": 1,
+      "seed": 1807
+    },
+    {
+      "action_id": 17,
+      "friction_mu": 0.05,
+      "object_id": 2,
+      "seed": 1808
+    }
+  ],
+  "expected_preview_episode_count": 9,
+  "formal_episode_count_if_approved": 500
+}

@@ -1,0 +1,32 @@
+{
+  "experiment": "Exact former fric80 no-board event-tap stability probe",
+  "source_script": "scripts/collect_libero_push_box_event_tap_segmented80_10action_lerobot_2026-07-05_hai-machine.py",
+  "target": "cream_cheese_box",
+  "pusher": "native_open_gripper_without_board",
+  "frictions": [0.02, 0.08, 0.15],
+  "action": {
+    "A": 0.26,
+    "push_steps": 10,
+    "source_action_id": 5,
+    "selection": "Use the unchanged A=0.26 entry from the former fric80 action table"
+  },
+  "event_tap": {
+    "contact_offset_x_m": -0.16,
+    "contact_move_m": 0.001,
+    "contact_speed_mps": 0.03,
+    "trigger_vx_ratio": 2.2,
+    "max_contact_hold_frames": 3,
+    "hold_after_contact_frames": 0,
+    "after_mode": "stop"
+  },
+  "recording": {
+    "format": "LeRobot",
+    "camera_resolution": 224,
+    "fps": 20,
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98
+  },
+  "seed": 0,
+  "expected_episode_count": 3
+}

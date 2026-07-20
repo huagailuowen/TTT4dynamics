@@ -1,0 +1,73 @@
+{
+  "dataset_name": "libero_push_box_old_board_touch_A025_3friction_stability_probe_lerobot_2026-07-19-hai-machine",
+  "source_base_config": "configs/libero_push_box_board_touch_20fric_30action_fixed5cm_A050_2026-07-17_hai-machine.json",
+  "target_visible": false,
+  "split": "straight",
+  "camera_resolution": 224,
+  "fps": 20,
+  "friction_schedule": {
+    "description": "Three-friction diagnostic using the exact former board-touch box controller",
+    "segments": [
+      {
+        "start": 0.02,
+        "stop": 0.08,
+        "count": 2,
+        "endpoint": true
+      },
+      {
+        "start": 0.15,
+        "stop": 0.15,
+        "count": 1,
+        "endpoint": true
+      }
+    ]
+  },
+  "action_schedule": {
+    "description": "One matched peak EEF delta-position action",
+    "minimum_A": 0.25,
+    "maximum_A": 0.25,
+    "count": 1,
+    "endpoint": true
+  },
+  "action_template": {
+    "type": "fixed_eef_travel_ramp_latched_brake",
+    "first_frame_fraction": 0.7,
+    "target_eef_travel_m": 0.05,
+    "pusher_max_pos_action": 0.5,
+    "controller_push_phase_steps": 16,
+    "post_launch_recording_frames": 80,
+    "normalized_profile": [0.7, 1.0],
+    "description": "0.7A first frame, then A until the 5 cm brake trigger, one-way braking, then latched zero",
+    "controller": {
+      "brake_trigger_lookahead_frames": 1.0,
+      "brake_gain_action_per_mps": 0.6,
+      "maximum_brake_frames": 3,
+      "stop_speed_mps": 0.03,
+      "after_brake": "latch_zero_without_reacceleration"
+    }
+  },
+  "touch_preparation": {
+    "recorded": false,
+    "maximum_steps": 200,
+    "target_gap_m": 0.0003,
+    "require_sampled_board_box_contact": true,
+    "description": "Approach and gentle contact happen before episode recording"
+  },
+  "board": {
+    "position_eef_m": [0.0, 0.047, 0.003],
+    "quaternion_eef_wxyz": [0.999589, -0.028649, 0.0, 0.0],
+    "half_size_m": [0.05, 0.004, 0.008],
+    "mass_kg": 0.08,
+    "initial_gripper_state": "closed around rigid visual handle at reset",
+    "collision_policy": "board collides with cream-cheese box only"
+  },
+  "recording": {
+    "format": "LeRobot",
+    "use_videos": true,
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98,
+    "observation_action_alignment": "pre-step observation paired with the action applied to obtain the next state"
+  },
+  "expected_episode_count": 3
+}

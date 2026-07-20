@@ -1,0 +1,25 @@
+{
+  "experiment": "fixed 5 cm EEF travel into the formerly unstable aggressive action regime",
+  "frictions": [0.2],
+  "amplitudes": [0.36, 0.5, 0.65, 0.8, 1.0],
+  "travel_m": 0.05,
+  "pusher_max_pos_action": 1.0,
+  "recorded_steps": 80,
+  "fps": 20,
+  "camera_resolution": 224,
+  "controller": {
+    "type": "speed-limited EEF x endpoint servo",
+    "position_gain_action_per_m": 24.0,
+    "velocity_damping_action_per_mps": 0.4,
+    "action_limit": "plus_or_minus_A",
+    "target_tolerance_m": 0.001
+  },
+  "recording": {
+    "format": "LeRobot",
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98,
+    "touch_preparation_recorded": false
+  },
+  "expected_episode_count": 5
+}
