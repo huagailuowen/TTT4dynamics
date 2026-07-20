@@ -68,3 +68,7 @@ checkpoints/
 .hf_cache/
 huggingface/
 wandb/
+
+# Local simulator/runtime artifacts
+.deps/
+MUJOCO_LOG.TXT
