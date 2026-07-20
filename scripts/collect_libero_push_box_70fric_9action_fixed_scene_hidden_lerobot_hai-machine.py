@@ -37,7 +37,7 @@ from generate_libero_push_box_adaptation_dataset import build_case, write_geomet
 from ttt4dynamics.push_box_libero import LiberoPushBoxEnv  # noqa: E402
 
 DEFAULT_CONFIG = REPO_ROOT / "configs" / "libero_push_box_70fric_9action_fixed_scene_hai-machine.json"
-DEFAULT_OUTPUT = REPO_ROOT / "data" / "libero_push_box_70fric_9action_fixed_scene_hidden_lerobot_hai-machine_2026-07-01"
+DEFAULT_OUTPUT = REPO_ROOT / "data" / "pushbox" / "libero_push_box_70fric_9action_fixed_scene_hidden_lerobot_hai-machine_2026-07-01"
 DEFAULT_CALIBRATION = REPO_ROOT / "tmp" / "libero_push_box_70fric_9action_fixed_scene_calibration_2026-07-01"
 VIDEO_CODEC = "h264"
 VIDEO_CRF = 18

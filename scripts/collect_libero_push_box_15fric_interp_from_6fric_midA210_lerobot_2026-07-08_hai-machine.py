@@ -14,7 +14,7 @@ import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BASE_6FRIC_SCRIPT = REPO_ROOT / "scripts" / "collect_libero_push_box_formal_6fric_50pair_35_35_direct_lerobot_hai-machine.py"
-OUTPUT_ROOT = REPO_ROOT / "data" / "libero_push_box_15fric_interp_from_6fric_midA210_hidden_lerobot_2026-07-08_hai-machine"
+OUTPUT_ROOT = REPO_ROOT / "data" / "pushbox" / "libero_push_box_15fric_interp_from_6fric_midA210_hidden_lerobot_2026-07-08_hai-machine"
 
 FRICTIONS = [
     0.005,

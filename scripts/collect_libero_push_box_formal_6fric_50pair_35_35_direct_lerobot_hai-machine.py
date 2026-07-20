@@ -35,7 +35,7 @@ from fastwam.datasets.lerobot.lerobot.lerobot_dataset import LeRobotDataset  # n
 from generate_libero_push_box_adaptation_dataset import build_case, write_geometry_bddl  # noqa: E402
 from ttt4dynamics.push_box_libero import LiberoPushBoxEnv  # noqa: E402
 
-OUTPUT_ROOT = REPO_ROOT / "data" / "libero_push_box_6fric_50pairs_straight_jitter_35_35_direct_lerobot_hai-machine_2026-06-29"
+OUTPUT_ROOT = REPO_ROOT / "data" / "pushbox" / "libero_push_box_6fric_50pairs_straight_jitter_35_35_direct_lerobot_hai-machine_2026-06-29"
 FPS = 20
 CAMERA_RESOLUTION = 224
 VIDEO_CODEC = "h264"

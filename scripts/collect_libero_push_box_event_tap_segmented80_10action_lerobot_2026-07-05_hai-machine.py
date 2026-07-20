@@ -16,7 +16,7 @@ import numpy as np
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BASE_SCRIPT = REPO_ROOT / "scripts" / "collect_libero_push_box_70fric_9action_fixed_scene_hidden_lerobot_hai-machine.py"
 CONFIG_PATH = REPO_ROOT / "configs" / "libero_push_box_70fric_9action_fixed_scene_highforce_2026-07-02_hai-machine.json"
-DEFAULT_OUTPUT = REPO_ROOT / "data" / "libero_push_box_event_tap_segmented80_10action_hidden_lerobot_A500_offset160_stop_2026-07-05_hai-machine"
+DEFAULT_OUTPUT = REPO_ROOT / "data" / "pushbox" / "libero_push_box_event_tap_segmented80_10action_hidden_lerobot_A500_offset160_stop_2026-07-05_hai-machine"
 
 VIDEO_CODEC = "h264"
 VIDEO_CRF = 18
