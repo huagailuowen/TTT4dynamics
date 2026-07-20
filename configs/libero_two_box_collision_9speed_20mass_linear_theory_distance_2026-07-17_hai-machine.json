@@ -1,0 +1,159 @@
+{
+  "dataset_type": "libero_two_box_collision_9speed_20mass_linear_theory_distance_lerobot_hai-machine",
+  "fps": 20,
+  "camera_resolution": 224,
+  "recorded_steps": 60,
+  "friction_mu": 0.01,
+  "projectile_mass_kg": 0.25,
+  "projectile_init_xy": [
+    -0.3,
+    0.0
+  ],
+  "target_init_xy": [
+    -0.12,
+    0.0
+  ],
+  "object_center_gap_m": 0.18,
+  "impact_lateral_offset_max_m": 0.001,
+  "controller_translation_scale": 4.0,
+  "brake_profile": [
+    -0.8,
+    -0.8,
+    -0.4,
+    0.0,
+    0.0
+  ],
+  "target_masses_kg": [
+    2.0,
+    0.7675998876361894,
+    0.5094335846760929,
+    0.38219477517298117,
+    0.30298096844942934,
+    0.24761607562255922,
+    0.20612224394763617,
+    0.17353221408716973,
+    0.14705839565530937,
+    0.1249995944935468,
+    0.10625098812356376,
+    0.09005971766464121,
+    0.07589271610104259,
+    0.06336054139967279,
+    0.052171169671804685,
+    0.042100748212671235,
+    0.03297441074216784,
+    0.02465330390471554,
+    0.017025580278169805,
+    0.010000000000000009
+  ],
+  "mass_distribution": "20 target masses ordered from short to long nominal stopping distance; masses are inverse-collision-law samples, not linearly spaced masses",
+  "actions": [
+    {
+      "action_id": 0,
+      "A": 0.38,
+      "push_steps": 6,
+      "calibrated_preimpact_vx_mps": 0.346231026
+    },
+    {
+      "action_id": 1,
+      "A": 0.42,
+      "push_steps": 6,
+      "calibrated_preimpact_vx_mps": 0.387710673
+    },
+    {
+      "action_id": 2,
+      "A": 0.46,
+      "push_steps": 6,
+      "calibrated_preimpact_vx_mps": 0.398963929
+    },
+    {
+      "action_id": 3,
+      "A": 0.56,
+      "push_steps": 5,
+      "calibrated_preimpact_vx_mps": 0.468499648
+    },
+    {
+      "action_id": 4,
+      "A": 0.6,
+      "push_steps": 4,
+      "calibrated_preimpact_vx_mps": 0.5057018
+    },
+    {
+      "action_id": 5,
+      "A": 0.68,
+      "push_steps": 4,
+      "calibrated_preimpact_vx_mps": 0.573092216
+    },
+    {
+      "action_id": 6,
+      "A": 0.85,
+      "push_steps": 3,
+      "calibrated_preimpact_vx_mps": 0.633367444
+    },
+    {
+      "action_id": 7,
+      "A": 0.9,
+      "push_steps": 3,
+      "calibrated_preimpact_vx_mps": 0.664081795
+    },
+    {
+      "action_id": 8,
+      "A": 1.0,
+      "push_steps": 3,
+      "calibrated_preimpact_vx_mps": 0.730686006
+    }
+  ],
+  "target_nominal_theory_distances_cm": [
+    0.7953066290450305,
+    3.8881726220511212,
+    6.981038615057211,
+    10.0739046080633,
+    13.166770601069391,
+    16.259636594075484,
+    19.35250258708157,
+    22.445368580087663,
+    25.538234573093753,
+    28.631100566099843,
+    31.723966559105932,
+    34.816832552112025,
+    37.90969854511811,
+    41.002564538124204,
+    44.09543053113029,
+    47.18829652413638,
+    50.28116251714248,
+    53.37402851014858,
+    56.46689450315466,
+    59.55976049616075
+  ],
+  "target_postcollision_vx_mps": [
+    0.03950179244270252,
+    0.08734182666090914,
+    0.11703331902813938,
+    0.14058805369241084,
+    0.16072711009440238,
+    0.17860964978851535,
+    0.1948579227946712,
+    0.20985188384699338,
+    0.22384373172463407,
+    0.23701101094820023,
+    0.24948431291158538,
+    0.26136301472711054,
+    0.2727248220194153,
+    0.28363185932437085,
+    0.294134722027301,
+    0.30427526646172803,
+    0.3140885875969287,
+    0.3236044559905063,
+    0.33284838442628717,
+    0.3418424346003103
+  ],
+  "linear_distance_calibration": {
+    "source_lookup": "/home/yininghong/chenyuan/TTT-physics/repos/TTT4dynamics/data/mass/original_mass_grid_9speed_20mass_2026-07-16_hai-machine/analysis/postimpact_speed_lookup_2026-07-17_hai-machine/uniform_theoretical_distance_20level_candidate.csv",
+    "reference_action_id": 0,
+    "reference_A": 0.38,
+    "collision_factor_fit_1_plus_e": 1.0459942863166074,
+    "mean_preimpact_vx_mps": 0.3398834359184187,
+    "nominal_formula": "d = v_post^2 / (2 * friction_mu * 9.81)",
+    "level_order": "short_to_long",
+    "off_table_rollouts_allowed": true
+  }
+}

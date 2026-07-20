@@ -1,0 +1,54 @@
+{
+  "dataset_type": "libero_two_box_mass_friction_boundary_3mass_3friction_9action_lerobot_hai-machine",
+  "fps": 20,
+  "camera_resolution": 224,
+  "recorded_steps": 60,
+  "friction_mu": 0.01,
+  "projectile_table_friction_mu": 0.01,
+  "target_table_friction_values": [
+    0.002,
+    0.05,
+    0.15
+  ],
+  "projectile_mass_kg": 0.25,
+  "target_masses_kg": [
+    0.01,
+    0.125,
+    2.0
+  ],
+  "projectile_init_xy": [-0.3, 0.0],
+  "target_init_xy": [-0.12, 0.0],
+  "object_center_gap_m": 0.18,
+  "impact_lateral_offset_max_m": 0.001,
+  "controller_translation_scale": 4.0,
+  "brake_profile": [-0.8, -0.8, -0.4, 0.0, 0.0],
+  "friction_implementation": {
+    "variable_contact": "target-table",
+    "projectile_geom_priority": 9,
+    "target_geom_priority": 10,
+    "table_geom_priority": 0,
+    "projectile_target_contact_friction_note": "Target priority also wins tangential block-block friction; the collision is centered and momentum transfer is primarily normal."
+  },
+  "sampling_policy": {
+    "kind": "full_cartesian_boundary_grid",
+    "environment_count": 9,
+    "episodes_per_environment": 9,
+    "outcome_conditioned_selection": false,
+    "outcome_conditioned_rejection": false,
+    "replacement_after_rollout": false,
+    "distance_censoring": false,
+    "retain_offscreen_and_near_zero_motion": true,
+    "failure_policy": "stop and report the fixed case; never substitute another environment pair"
+  },
+  "actions": [
+    {"action_id": 0, "A": 0.38, "push_steps": 6, "calibrated_preimpact_vx_mps": 0.346231026},
+    {"action_id": 1, "A": 0.42, "push_steps": 6, "calibrated_preimpact_vx_mps": 0.387710673},
+    {"action_id": 2, "A": 0.46, "push_steps": 6, "calibrated_preimpact_vx_mps": 0.398963929},
+    {"action_id": 3, "A": 0.56, "push_steps": 5, "calibrated_preimpact_vx_mps": 0.468499648},
+    {"action_id": 4, "A": 0.60, "push_steps": 4, "calibrated_preimpact_vx_mps": 0.505701800},
+    {"action_id": 5, "A": 0.68, "push_steps": 4, "calibrated_preimpact_vx_mps": 0.573092216},
+    {"action_id": 6, "A": 0.85, "push_steps": 3, "calibrated_preimpact_vx_mps": 0.633367444},
+    {"action_id": 7, "A": 0.90, "push_steps": 3, "calibrated_preimpact_vx_mps": 0.664081795},
+    {"action_id": 8, "A": 1.00, "push_steps": 3, "calibrated_preimpact_vx_mps": 0.730686006}
+  ]
+}
