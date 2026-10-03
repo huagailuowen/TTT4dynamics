@@ -1,0 +1,861 @@
+{
+  "experiment": "LIBERO-Plus 5 randomly sampled backgrounds x 30 segmented frictions x 10 event80 actions with adaptive visual-static termination",
+  "source_physics_dataset": "data/pushbox/libero_push_box_event_tap_segmented80_10action_hidden_lerobot_A500_offset160_stop_2026-07-05_hai-machine",
+  "source_visual_preview": "outputs/pushbox/libero_plus_15background_object_combinations_preview_2026-08-05_hai-machine",
+  "target_visible": false,
+  "split": "hidden_straight_event80_matched_physics_5randombackground_30friction_10action_adaptive_end",
+  "camera_resolution": 224,
+  "fps": 20,
+  "friction_schedule": {
+    "description": "30-level proportional downsample of segmented80: [0.002,0.05)x11 + [0.05,0.15)x15 + [0.15,0.20]x4",
+    "expected_count": 30,
+    "segments": [
+      {
+        "start": 0.002,
+        "stop": 0.05,
+        "count": 11,
+        "endpoint": false
+      },
+      {
+        "start": 0.05,
+        "stop": 0.15,
+        "count": 15,
+        "endpoint": false
+      },
+      {
+        "start": 0.15,
+        "stop": 0.20,
+        "count": 4,
+        "endpoint": true
+      }
+    ]
+  },
+  "actions": [
+    {
+      "action_id": 0,
+      "A": 0.08,
+      "push_steps": 16,
+      "description": "lowest segmented80 anchor that reaches from 0.16 m offset"
+    },
+    {
+      "action_id": 1,
+      "A": 0.11,
+      "push_steps": 12,
+      "description": "segmented80 mid-low"
+    },
+    {
+      "action_id": 2,
+      "A": 0.14,
+      "push_steps": 10,
+      "description": "segmented80 mid-low dense"
+    },
+    {
+      "action_id": 3,
+      "A": 0.17,
+      "push_steps": 10,
+      "description": "segmented80 mid dense"
+    },
+    {
+      "action_id": 4,
+      "A": 0.21,
+      "push_steps": 10,
+      "description": "segmented80 middle preview anchor"
+    },
+    {
+      "action_id": 5,
+      "A": 0.26,
+      "push_steps": 10,
+      "description": "segmented80 mid-high dense"
+    },
+    {
+      "action_id": 6,
+      "A": 0.32,
+      "push_steps": 10,
+      "description": "segmented80 mid-high dense"
+    },
+    {
+      "action_id": 7,
+      "A": 0.34,
+      "push_steps": 10,
+      "description": "segmented80 clean high bridge"
+    },
+    {
+      "action_id": 8,
+      "A": 0.36,
+      "push_steps": 10,
+      "description": "segmented80 clean high"
+    },
+    {
+      "action_id": 9,
+      "A": 0.5,
+      "push_steps": 10,
+      "description": "segmented80 maximum stable high-force action"
+    }
+  ],
+  "preview": {
+    "frictions": [
+      0.002,
+      0.10,
+      0.20
+    ],
+    "action_ids": [
+      0,
+      4,
+      9
+    ],
+    "expected_episode_count": 45,
+    "comparison_video_layout": "five sampled backgrounds; preview not required for approved formal generation"
+  },
+  "formal": {
+    "environment_count": 5,
+    "episodes_per_environment": 300,
+    "expected_episode_count": 1500,
+    "enabled_only_after_preview_approval": false
+  },
+  "segmented80_control": {
+    "contact_offset_x_m": -0.16,
+    "approach_steps": 35,
+    "descend_steps": 35,
+    "profile_rule": "[0.5] + [1.0] * (push_steps - 3) + [0.5, 0.0]",
+    "contact_move_m": 0.001,
+    "contact_speed_mps": 0.03,
+    "trigger_vx_ratio": 2.2,
+    "max_contact_hold": 3,
+    "hold_after_contact": 0,
+    "after_mode": "stop"
+  },
+  "canonical_physics": {
+    "source": "compiled classic segmented80 cream_cheese_1 probe on this machine",
+    "configured_init_xy_m": [
+      -0.245,
+      -0.035
+    ],
+    "compiled_initial_free_joint_qpos": [
+      -0.27096511458805767,
+      -0.02847272505424355,
+      0.935,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "robot_arm_joint_qpos": [
+      0.0,
+      -0.161037389,
+      0.0,
+      -2.44459747,
+      0.0,
+      2.2267522,
+      0.7853981633974483
+    ],
+    "robot_gripper_joint_qpos": [
+      0.020833,
+      -0.020833
+    ],
+    "robot_reset_eef_xyz_m": [
+      -0.2084646605658236,
+      0.0,
+      1.1732794757296403
+    ],
+    "body_mass_kg": 0.006193808164454399,
+    "body_inertia_kg_m2": [
+      0.00000434440839921837,
+      0.000003569412694767001,
+      0.0000011047214138871006
+    ],
+    "body_ipos_m": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "body_iquat_wxyz": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476,
+      0.0
+    ],
+    "collision_type": "box",
+    "collision_half_size_local_m": [
+      0.008936,
+      0.021336,
+      0.040608
+    ],
+    "collision_pos_local_m": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "collision_quat_local_wxyz": [
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476,
+      0.0
+    ],
+    "collision_solref": [
+      0.001,
+      1.0
+    ],
+    "collision_solimp": [
+      0.998,
+      0.998,
+      0.001,
+      0.5,
+      2.0
+    ],
+    "collision_condim": 3,
+    "collision_margin_m": 0.0,
+    "collision_gap_m": 0.0,
+    "friction_torsional": 0.004,
+    "friction_rolling": 0.0001,
+    "table_geometry_and_friction": "unchanged from the classic segmented80 LIBERO scene"
+  },
+  "environments": [
+    {
+      "environment_index": 0,
+      "environment_id": "env13_bg13_plus_kitchen_tiles_v2",
+      "source_preview_case": "30background_matched_physics_visual_13",
+      "background_preset_id": "bg13_plus_kitchen_tiles_v2",
+      "object_variant": {
+        "object_id": 1,
+        "name": "official_hope_cream_cheese",
+        "display_name": "Cream Cheese Box",
+        "bddl_type": "cream_cheese",
+        "asset_xml": "stable_hope_objects/cream_cheese/cream_cheese.xml",
+        "visual_pose_quat_wxyz": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "native_collision_half_size_local_m": [
+          0.008936,
+          0.021336,
+          0.040608
+        ],
+        "native_collision_pos_local_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "native_collision_quat_local_wxyz": [
+          0.7071067811865476,
+          0.0,
+          0.7071067811865476,
+          0.0
+        ]
+      },
+      "background_index": 13,
+      "matched_background_preset": {
+        "preset_id": "bg13_plus_kitchen_tiles_v2",
+        "arena_xml": "scenes/kitchen_bg_Tiles01_COL_VAR2_6K.xml",
+        "floor_style": "tile",
+        "wall_style": "brick-col",
+        "table_texture_file": "scenes/ph/Tiles01_COL_VAR2_6K.png",
+        "table_rgb": [
+          0.35,
+          0.40,
+          0.43
+        ],
+        "lighting": {
+          "name": "tiles_v2_high_key",
+          "diffuse_scale": 1.20,
+          "ambient_scale": 1.30,
+          "specular_scale": 0.92,
+          "diffuse_tint": [
+            0.90,
+            0.96,
+            1.0
+          ],
+          "ambient_tint": [
+            0.92,
+            0.97,
+            1.0
+          ],
+          "specular_tint": [
+            0.96,
+            0.99,
+            1.0
+          ],
+          "position_offset_m": [
+            0.08,
+            0.30,
+            0.05
+          ]
+        }
+      },
+      "visual_only_changes": true,
+      "canonical_event80_physics": true,
+      "source_background_index": 13,
+      "source_environment_index": 1
+    },
+    {
+      "environment_index": 1,
+      "environment_id": "env15_bg15_plus_kitchen_classic_wood_alternate",
+      "source_preview_case": "30background_matched_physics_visual_15",
+      "background_preset_id": "bg15_plus_kitchen_classic_wood_alternate",
+      "object_variant": {
+        "object_id": 0,
+        "name": "official_hope_butter",
+        "display_name": "Butter Box",
+        "bddl_type": "butter",
+        "asset_xml": "stable_hope_objects/butter/butter.xml",
+        "visual_pose_quat_wxyz": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "native_collision_half_size_local_m": [
+          0.00871,
+          0.01977,
+          0.03809
+        ],
+        "native_collision_pos_local_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "native_collision_quat_local_wxyz": [
+          0.7071067811865476,
+          0.0,
+          0.7071067811865476,
+          0.0
+        ]
+      },
+      "background_index": 15,
+      "matched_background_preset": {
+        "preset_id": "bg15_plus_kitchen_classic_wood_alternate",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style.xml",
+        "floor_style": "tile_grigia_caldera",
+        "wall_style": "gray-plaster",
+        "table_texture_file": "textures/Marble01_COL_3K.png",
+        "table_rgb": [
+          0.70,
+          0.68,
+          0.66
+        ],
+        "lighting": {
+          "name": "neutral_daylight_alternate",
+          "diffuse_scale": 0.74,
+          "ambient_scale": 1.38,
+          "specular_scale": 0.50,
+          "diffuse_tint": [
+            1.0,
+            0.86,
+            0.72
+          ],
+          "ambient_tint": [
+            1.0,
+            0.91,
+            0.80
+          ],
+          "specular_tint": [
+            1.0,
+            0.92,
+            0.84
+          ],
+          "position_offset_m": [
+            0.30,
+            -0.2,
+            0.08
+          ]
+        }
+      },
+      "visual_only_changes": true,
+      "canonical_event80_physics": true,
+      "source_background_index": 15,
+      "source_environment_index": 0
+    },
+    {
+      "environment_index": 2,
+      "environment_id": "env17_bg17_plus_kitchen_cliff_alternate",
+      "source_preview_case": "30background_matched_physics_visual_17",
+      "background_preset_id": "bg17_plus_kitchen_cliff_alternate",
+      "object_variant": {
+        "object_id": 2,
+        "name": "official_hope_chocolate_pudding",
+        "display_name": "Chocolate Pudding Box",
+        "bddl_type": "chocolate_pudding",
+        "asset_xml": "stable_hope_objects/chocolate_pudding/chocolate_pudding.xml",
+        "visual_pose_quat_wxyz": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "native_collision_half_size_local_m": [
+          0.01371,
+          0.02316,
+          0.0401
+        ],
+        "native_collision_pos_local_m": [
+          -0.0005,
+          0.0,
+          0.00063
+        ],
+        "native_collision_quat_local_wxyz": [
+          0.7071067811865476,
+          0.0,
+          0.7071067811865476,
+          0.0
+        ]
+      },
+      "background_index": 17,
+      "matched_background_preset": {
+        "preset_id": "bg17_plus_kitchen_cliff_alternate",
+        "arena_xml": "scenes/kitchen_bg_CliffDesert006_COL_VAR1_HIRES.xml",
+        "floor_style": "cliffde-col",
+        "wall_style": "yellow-linen",
+        "table_texture_file": "textures/WoodFine001_ALBEDO_6K.png",
+        "table_rgb": [
+          0.50,
+          0.33,
+          0.20
+        ],
+        "lighting": {
+          "name": "soft_warm_alternate",
+          "diffuse_scale": 0.74,
+          "ambient_scale": 1.38,
+          "specular_scale": 1.02,
+          "diffuse_tint": [
+            1.0,
+            0.86,
+            0.72
+          ],
+          "ambient_tint": [
+            1.0,
+            0.91,
+            0.80
+          ],
+          "specular_tint": [
+            1.0,
+            0.92,
+            0.84
+          ],
+          "position_offset_m": [
+            0.30,
+            -0.2,
+            0.08
+          ]
+        }
+      },
+      "visual_only_changes": true,
+      "canonical_event80_physics": true,
+      "source_background_index": 17,
+      "source_environment_index": 2
+    },
+    {
+      "environment_index": 3,
+      "environment_id": "env19_bg19_plus_kitchen_tiles_alternate",
+      "source_preview_case": "30background_matched_physics_visual_19",
+      "background_preset_id": "bg19_plus_kitchen_tiles_alternate",
+      "object_variant": {
+        "object_id": 1,
+        "name": "official_hope_cream_cheese",
+        "display_name": "Cream Cheese Box",
+        "bddl_type": "cream_cheese",
+        "asset_xml": "stable_hope_objects/cream_cheese/cream_cheese.xml",
+        "visual_pose_quat_wxyz": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "native_collision_half_size_local_m": [
+          0.008936,
+          0.021336,
+          0.040608
+        ],
+        "native_collision_pos_local_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "native_collision_quat_local_wxyz": [
+          0.7071067811865476,
+          0.0,
+          0.7071067811865476,
+          0.0
+        ]
+      },
+      "background_index": 19,
+      "matched_background_preset": {
+        "preset_id": "bg19_plus_kitchen_tiles_alternate",
+        "arena_xml": "scenes/kitchen_bg_Tiles01_COL_VAR1_6K.xml",
+        "floor_style": "tile",
+        "wall_style": "brick-col",
+        "table_texture_file": "textures/FabricDenim003_COL_VAR1_HIRES.png",
+        "table_rgb": [
+          0.18,
+          0.29,
+          0.39
+        ],
+        "lighting": {
+          "name": "dim_cool_alternate",
+          "diffuse_scale": 0.74,
+          "ambient_scale": 1.38,
+          "specular_scale": 1.02,
+          "diffuse_tint": [
+            1.0,
+            0.86,
+            0.72
+          ],
+          "ambient_tint": [
+            1.0,
+            0.91,
+            0.80
+          ],
+          "specular_tint": [
+            1.0,
+            0.92,
+            0.84
+          ],
+          "position_offset_m": [
+            0.30,
+            -0.2,
+            0.08
+          ]
+        }
+      },
+      "visual_only_changes": true,
+      "canonical_event80_physics": true,
+      "source_background_index": 19,
+      "source_environment_index": 1
+    },
+    {
+      "environment_index": 4,
+      "environment_id": "env29_bg29_plus_kitchen_wood_color_alternate",
+      "source_preview_case": "30background_matched_physics_visual_29",
+      "background_preset_id": "bg29_plus_kitchen_wood_color_alternate",
+      "object_variant": {
+        "object_id": 2,
+        "name": "official_hope_chocolate_pudding",
+        "display_name": "Chocolate Pudding Box",
+        "bddl_type": "chocolate_pudding",
+        "asset_xml": "stable_hope_objects/chocolate_pudding/chocolate_pudding.xml",
+        "visual_pose_quat_wxyz": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "native_collision_half_size_local_m": [
+          0.01371,
+          0.02316,
+          0.0401
+        ],
+        "native_collision_pos_local_m": [
+          -0.0005,
+          0.0,
+          0.00063
+        ],
+        "native_collision_quat_local_wxyz": [
+          0.7071067811865476,
+          0.0,
+          0.7071067811865476,
+          0.0
+        ]
+      },
+      "background_index": 29,
+      "matched_background_preset": {
+        "preset_id": "bg29_plus_kitchen_wood_color_alternate",
+        "arena_xml": "scenes/kitchen_bg_WoodFine001_COL_6K.xml",
+        "floor_style": "woodfine01-a",
+        "wall_style": "cliffde-col",
+        "table_texture_file": "textures/FabricDenim003_COL_VAR1_HIRES.png",
+        "table_rgb": [
+          0.18,
+          0.29,
+          0.39
+        ],
+        "lighting": {
+          "name": "wood_color_side_alternate",
+          "diffuse_scale": 0.74,
+          "ambient_scale": 1.38,
+          "specular_scale": 1.02,
+          "diffuse_tint": [
+            1.0,
+            0.86,
+            0.72
+          ],
+          "ambient_tint": [
+            1.0,
+            0.91,
+            0.80
+          ],
+          "specular_tint": [
+            1.0,
+            0.92,
+            0.84
+          ],
+          "position_offset_m": [
+            0.30,
+            -0.2,
+            0.08
+          ]
+        }
+      },
+      "visual_only_changes": true,
+      "canonical_event80_physics": true,
+      "source_background_index": 29,
+      "source_environment_index": 2
+    }
+  ],
+  "background_randomization": {
+    "mode": "libero_plus_official_rich_scene_col_albedo_only",
+    "minimum_object_table_rgb_distance": 0.25,
+    "presets": [
+      {
+        "preset_id": "bg13_plus_kitchen_tiles_v2",
+        "arena_xml": "scenes/kitchen_bg_Tiles01_COL_VAR2_6K.xml",
+        "floor_style": "tile",
+        "wall_style": "brick-col",
+        "table_texture_file": "scenes/ph/Tiles01_COL_VAR2_6K.png",
+        "table_rgb": [
+          0.35,
+          0.40,
+          0.43
+        ],
+        "lighting": {
+          "name": "tiles_v2_high_key",
+          "diffuse_scale": 1.20,
+          "ambient_scale": 1.30,
+          "specular_scale": 0.92,
+          "diffuse_tint": [
+            0.90,
+            0.96,
+            1.0
+          ],
+          "ambient_tint": [
+            0.92,
+            0.97,
+            1.0
+          ],
+          "specular_tint": [
+            0.96,
+            0.99,
+            1.0
+          ],
+          "position_offset_m": [
+            0.08,
+            0.30,
+            0.05
+          ]
+        }
+      },
+      {
+        "preset_id": "bg15_plus_kitchen_classic_wood_alternate",
+        "arena_xml": "scenes/libero_kitchen_tabletop_base_style.xml",
+        "floor_style": "tile_grigia_caldera",
+        "wall_style": "gray-plaster",
+        "table_texture_file": "textures/Marble01_COL_3K.png",
+        "table_rgb": [
+          0.70,
+          0.68,
+          0.66
+        ],
+        "lighting": {
+          "name": "neutral_daylight_alternate",
+          "diffuse_scale": 0.74,
+          "ambient_scale": 1.38,
+          "specular_scale": 0.50,
+          "diffuse_tint": [
+            1.0,
+            0.86,
+            0.72
+          ],
+          "ambient_tint": [
+            1.0,
+            0.91,
+            0.80
+          ],
+          "specular_tint": [
+            1.0,
+            0.92,
+            0.84
+          ],
+          "position_offset_m": [
+            0.30,
+            -0.2,
+            0.08
+          ]
+        }
+      },
+      {
+        "preset_id": "bg17_plus_kitchen_cliff_alternate",
+        "arena_xml": "scenes/kitchen_bg_CliffDesert006_COL_VAR1_HIRES.xml",
+        "floor_style": "cliffde-col",
+        "wall_style": "yellow-linen",
+        "table_texture_file": "textures/WoodFine001_ALBEDO_6K.png",
+        "table_rgb": [
+          0.50,
+          0.33,
+          0.20
+        ],
+        "lighting": {
+          "name": "soft_warm_alternate",
+          "diffuse_scale": 0.74,
+          "ambient_scale": 1.38,
+          "specular_scale": 1.02,
+          "diffuse_tint": [
+            1.0,
+            0.86,
+            0.72
+          ],
+          "ambient_tint": [
+            1.0,
+            0.91,
+            0.80
+          ],
+          "specular_tint": [
+            1.0,
+            0.92,
+            0.84
+          ],
+          "position_offset_m": [
+            0.30,
+            -0.2,
+            0.08
+          ]
+        }
+      },
+      {
+        "preset_id": "bg19_plus_kitchen_tiles_alternate",
+        "arena_xml": "scenes/kitchen_bg_Tiles01_COL_VAR1_6K.xml",
+        "floor_style": "tile",
+        "wall_style": "brick-col",
+        "table_texture_file": "textures/FabricDenim003_COL_VAR1_HIRES.png",
+        "table_rgb": [
+          0.18,
+          0.29,
+          0.39
+        ],
+        "lighting": {
+          "name": "dim_cool_alternate",
+          "diffuse_scale": 0.74,
+          "ambient_scale": 1.38,
+          "specular_scale": 1.02,
+          "diffuse_tint": [
+            1.0,
+            0.86,
+            0.72
+          ],
+          "ambient_tint": [
+            1.0,
+            0.91,
+            0.80
+          ],
+          "specular_tint": [
+            1.0,
+            0.92,
+            0.84
+          ],
+          "position_offset_m": [
+            0.30,
+            -0.2,
+            0.08
+          ]
+        }
+      },
+      {
+        "preset_id": "bg29_plus_kitchen_wood_color_alternate",
+        "arena_xml": "scenes/kitchen_bg_WoodFine001_COL_6K.xml",
+        "floor_style": "woodfine01-a",
+        "wall_style": "cliffde-col",
+        "table_texture_file": "textures/FabricDenim003_COL_VAR1_HIRES.png",
+        "table_rgb": [
+          0.18,
+          0.29,
+          0.39
+        ],
+        "lighting": {
+          "name": "wood_color_side_alternate",
+          "diffuse_scale": 0.74,
+          "ambient_scale": 1.38,
+          "specular_scale": 1.02,
+          "diffuse_tint": [
+            1.0,
+            0.86,
+            0.72
+          ],
+          "ambient_tint": [
+            1.0,
+            0.91,
+            0.80
+          ],
+          "specular_tint": [
+            1.0,
+            0.92,
+            0.84
+          ],
+          "position_offset_m": [
+            0.30,
+            -0.2,
+            0.08
+          ]
+        }
+      }
+    ],
+    "lighting_control": "Per-environment runtime diffuse, ambient, specular, and light-position control"
+  },
+  "recording": {
+    "format": "LeRobot",
+    "video_codec": "h264",
+    "video_crf": 18,
+    "jpeg_quality": 98
+  },
+  "expected_environment_count": 5,
+  "expected_friction_count": 30,
+  "expected_action_count": 10,
+  "expected_preview_episode_count": 45,
+  "expected_formal_episode_count": 1500,
+  "expected_episode_count": 1500,
+  "formal_episode_count": 1500,
+  "physics_invariance": {
+    "reference": "libero_push_box_event_tap_segmented80_10action_hidden_lerobot_A500_offset160_stop",
+    "compiled_as_original_segmented80_cream_cheese": true,
+    "canonical_collision_body_preserved": true,
+    "canonical_mass_and_inertia_preserved": true,
+    "canonical_table_collision_geometry_preserved": true,
+    "only_visual_mesh_texture_lighting_changes": true,
+    "event_trigger_controller_preserved": true,
+    "contact_offset_m": -0.16,
+    "non_target_background_collision_disabled_or_outside_push_corridor": true
+  },
+  "background_sampling": {
+    "method": "uniform_without_replacement_from_30_fixed_backgrounds",
+    "seed": 20260819,
+    "source_background_count": 30,
+    "sampled_background_count": 5,
+    "sampled_source_background_indices": [
+      13,
+      15,
+      17,
+      19,
+      29
+    ],
+    "sampled_environment_ids": [
+      "env13_bg13_plus_kitchen_tiles_v2",
+      "env15_bg15_plus_kitchen_classic_wood_alternate",
+      "env17_bg17_plus_kitchen_cliff_alternate",
+      "env19_bg19_plus_kitchen_tiles_alternate",
+      "env29_bg29_plus_kitchen_wood_color_alternate"
+    ],
+    "sampling_frozen_in_config": true
+  },
+  "adaptive_episode_end": {
+    "enabled": true,
+    "activate_only_after_event_stop": true,
+    "visual_mean_absolute_difference_threshold": 0.08,
+    "eef_speed_threshold_mps": 0.01,
+    "consecutive_stable_frames": 10,
+    "stable_context_seconds": 0.5,
+    "minimum_frames_after_event_stop": 5,
+    "hard_maximum": "original event80 case.max_steps",
+    "cameras": [
+      "observation.images.image",
+      "observation.images.wrist_image"
+    ],
+    "description": "End after both raw camera streams and EEF are stable for 10 consecutive frames; moving in-view objects continue recording, while off-screen/static tails are removed."
+  }
+}

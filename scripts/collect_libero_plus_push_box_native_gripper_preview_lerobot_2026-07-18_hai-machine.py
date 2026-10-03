@@ -23,7 +23,10 @@ import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 LIBERO_ROOT = REPO_ROOT.parent / "LIBERO-plus" / "libero"
-LIBERO_CONFIG_ROOT = REPO_ROOT / "configs" / "libero_plus_runtime_2026-07-18_hai-machine"
+LIBERO_CONFIG_ROOT = Path(os.environ.get(
+    "T2Z_LIBERO_PLUS_CONFIG_PATH",
+    str(REPO_ROOT / "configs" / "libero_plus_runtime_2026-07-18_hai-machine"),
+))
 os.environ["LIBERO_CONFIG_PATH"] = str(LIBERO_CONFIG_ROOT)
 
 # Both LIBERO variants expose the same namespace and the shared venv keeps the
